@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Input : MonoBehaviour
+public class CharacterInput : MonoBehaviour
 {
     public Vector2 look;
+
 }

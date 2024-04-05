@@ -9,7 +9,7 @@ public class Third_PersonCamera : MonoBehaviour
     public GameObject mainCamera;
     public GameObject targetCinemachine;
     private float cinemachineTargetYaw;
-    private Input input;
+    private CharacterInput input;
 
     public bool LockCameraPosition = false;
     private const float threshOld = 0.01f;
@@ -21,7 +21,6 @@ public class Third_PersonCamera : MonoBehaviour
     private void Start()
     {
         cinemachineTargetYaw = targetCinemachine.transform.rotation.eulerAngles.y;
-
     }
 
     public void CameraRotation()
