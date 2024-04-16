@@ -7,5 +7,5 @@ public class InputKEY
     public KeyCode jump;
     public KeyCode sprint;
     public KeyCode slide;
-    public KeyCode wireAction;
+    public KeyCode grapplingHook;
 }
