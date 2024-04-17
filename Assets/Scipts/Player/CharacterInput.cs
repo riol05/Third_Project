@@ -57,11 +57,13 @@ public class CharacterInput : MonoBehaviour
     }
     private void LookInput(Vector2 Lookdir)
     {
+
         look = Lookdir;
     }
 
     private void MoveInput(Vector2 movedir)
     {
+        print($"{movedir}");
         move = movedir;
     }
 

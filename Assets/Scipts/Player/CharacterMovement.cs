@@ -10,9 +10,11 @@ public class CharacterMovement : MonoBehaviour
     public CharacterController controller;
     private Animator ani;
     private CharacterInput inputC;
-    public GameObject mainCamera;
-
+    //public GameObject mainCamera;
+    private Third_PersonCamera mainCamera;
     public GroundChecker checkGround;//isground();
+
+    private bool hasAni;
     #region 속도 관련, 방향 회전 관련
     private float speed;
     private float aniBlend;
@@ -25,18 +27,19 @@ public class CharacterMovement : MonoBehaviour
     public float rotationVelocity;
     public float rotationSmoothTime;
     #endregion
-    
+
     #region 점프
+    private bool isGround;
     private float fallTimeDelta;
-    private float fallTimeOut;
+    private float fallTimeOut = 0.5f;
 
     private float jumpTimeOutDelta;
-    private float jumpTimeOut;
+    private float jumpTimeOut = 0.15f;
 
     private float jumpHeight;
-    public float gravity;
+    private  float gravity =-15f;
 
-    private float terminalVelocity;
+    private float terminalVelocity = -53;
     #endregion
 
     #region 애니메이션 string 관리
@@ -49,12 +52,24 @@ public class CharacterMovement : MonoBehaviour
 
     private void Awake()
     {
-        mainCamera = GameObject.FindGameObjectWithTag("Main Camera");
+        hasAni = GetComponent<Animator>();
+        controller = GetComponent<CharacterController>();
+        inputC = GetComponent<CharacterInput>();
+        //mainCamera = GameObject.FindGameObjectWithTag("Main Camera");
+        mainCamera = GetComponent<Third_PersonCamera>();
+        checkGround = GetComponent<GroundChecker>();
         AnimationString();
     }
     private void Start()
     {
-        inputC = GetComponent<CharacterInput>();
+        jumpTimeOutDelta = jumpTimeOut;
+        fallTimeDelta = fallTimeOut;
+    }
+    private void Update()
+    {
+        isGround =checkGround.GroundedCheck();
+        Move();
+        OnJump();
     }
     private void AnimationString()
     {
@@ -66,6 +81,7 @@ public class CharacterMovement : MonoBehaviour
 
     private void Move()
     {
+
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
 
@@ -100,24 +116,26 @@ public class CharacterMovement : MonoBehaviour
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
         controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
 
-        // if(HasAnimation)
-        ani.SetFloat(animWalkString, aniBlend);
-        ani.SetFloat(animRunString, inputMagnitude);
+        if (hasAni)
+        {
+            ani.SetFloat(animWalkString, aniBlend);
+            ani.SetFloat(animRunString, inputMagnitude);
+        }
     }
     
     private void OnJump()
     {
-        if(checkGround.GroundedCheck())
+        if(isGround)
         {
             fallTimeDelta = fallTimeOut;
-            //if(hasAnimate)
-            ani.SetBool(animJumpgString,false);
-            ani.SetBool(animFreeFallString,false);
+            if (hasAni)
+            {
+                ani.SetBool(animJumpgString, false);
+                ani.SetBool(animFreeFallString, false);
+            }
             
             if(verticalVelocity < 0)
-            {
                 verticalVelocity = -2f;
-            }
             
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
@@ -126,7 +144,8 @@ public class CharacterMovement : MonoBehaviour
                 ani.SetBool(animJumpgString, true);
             }
             
-            if(jumpTimeOutDelta >= 0f) jumpTimeOutDelta -= Time.deltaTime;
+            if(jumpTimeOutDelta >= 0f)
+                jumpTimeOutDelta -= Time.deltaTime;
         }
         else
         {
@@ -138,7 +157,7 @@ public class CharacterMovement : MonoBehaviour
             }
             else
             {
-                //if(hasAnimator)
+                if(hasAni)
                 ani.SetBool(animFreeFallString, true);
             }
             inputC.jump = false;

@@ -6,13 +6,20 @@ using UnityEngine;
 public class GroundChecker : MonoBehaviour
 {
     private float GroundedRadius = 0.28f;
-    private float GroundedOffset = 0.14f;
+    private float GroundedOffset = 0.86f;
     [SerializeField]
     private LayerMask GroundLayers;
 
     [Header("Debug")]
     public bool OnGizmo;
 
+    private void Update()
+    {
+        if(GroundedCheck())
+        {
+            print("collision now");
+        }
+    }
     private void OnDrawGizmos()
     {
         if(OnGizmo)
@@ -27,6 +34,5 @@ public class GroundChecker : MonoBehaviour
             transform.position.z);
         return Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
             QueryTriggerInteraction.Ignore);
-            //_animator.SetBool(_animIDGrounded, Grounded);
     }
 }

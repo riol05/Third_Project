@@ -1,24 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Build.Player;
 using UnityEngine;
 
 
 public class Third_PersonCamera : MonoBehaviour
 {
+    public static Third_PersonCamera instance;
     public GameObject targetCinemachine;
     
     private float cinemachineTargetYaw;
     private float cinemachineTargetPitch;
-    public float BottomClamp = 30f; // 
-    public float TopClamp = 85f;
+    private float BottomClamp = -50f; // 
+    private float TopClamp = 50f;
 
     private CharacterInput inputC;
     
     private const float threshHold = 0.01f;
     public bool LockCameraPosition = false;
+    public float CameraAngleOverride;
+    public float rotateSpeed = 1f;
 
+    private void Awake()
+    {
+        instance = this;
+    }
     private void Start()
     {
         inputC = GetComponent<CharacterInput>();
@@ -33,12 +41,16 @@ public class Third_PersonCamera : MonoBehaviour
     {
         if(inputC.look.sqrMagnitude >= threshHold && LockCameraPosition)
         {
-            float rotateSpeed = 1f;
-            cinemachineTargetYaw += rotateSpeed * Time.deltaTime;
-            cinemachineTargetPitch += rotateSpeed * Time.deltaTime;
+            cinemachineTargetYaw += inputC.look.x * rotateSpeed ;
+            cinemachineTargetPitch += inputC.look.y * rotateSpeed;
         }
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
-        cinemachineTargetYaw = ClampAngle(cinemachineTargetPitch,BottomClamp,TopClamp);
+        cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch,BottomClamp,TopClamp);
+
+        print($"X:{cinemachineTargetYaw}");
+        print($"Y:{cinemachineTargetPitch}");
+
+        targetCinemachine.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0f);
     }
 
     private static float ClampAngle(float ifAngle ,float ifMin,float ifMax)
@@ -47,6 +59,4 @@ public class Third_PersonCamera : MonoBehaviour
         if (ifAngle < -360) ifAngle += 360;
         return Mathf.Clamp(ifAngle,ifMin,ifMax);
     }
-
-
 }
