@@ -47,10 +47,8 @@ public class Third_PersonCamera : MonoBehaviour
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
         cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch,BottomClamp,TopClamp);
 
-        print($"X:{cinemachineTargetYaw}");
-        print($"Y:{cinemachineTargetPitch}");
 
-        targetCinemachine.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0f);
+        targetCinemachine.transform.rotation = Quaternion.Euler(-(cinemachineTargetPitch + CameraAngleOverride), cinemachineTargetYaw, 0f);
     }
 
     private static float ClampAngle(float ifAngle ,float ifMin,float ifMax)

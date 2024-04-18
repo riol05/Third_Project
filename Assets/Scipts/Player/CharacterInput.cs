@@ -25,7 +25,7 @@ public class CharacterInput : MonoBehaviour
     }
     public void OnLook(InputValue value)
     {
-        if (cursorInputForLook)
+        if (isCursorLock)
         {
             LookInput(value.Get<Vector2>());
         }

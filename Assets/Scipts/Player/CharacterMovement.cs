@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -7,19 +8,23 @@ using UnityEngine.Windows;
 
 public class CharacterMovement : MonoBehaviour
 {
+    [SerializeField]
+    private CinemachineVirtualCamera mainCamera;
+    
     public CharacterController controller;
     private Animator ani;
     private CharacterInput inputC;
     //public GameObject mainCamera;
-    private Third_PersonCamera mainCamera;
     public GroundChecker checkGround;//isground();
+
+    private Rigidbody rb;
 
     private bool hasAni;
     #region 속도 관련, 방향 회전 관련
     private float speed;
     private float aniBlend;
     private float targetRotation;
-    private float speedChangeRate;
+    private float speedChangeRate = 10;
     public float sprintSpeed;
     public float moveSpeed;
 
@@ -52,11 +57,11 @@ public class CharacterMovement : MonoBehaviour
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>();
         hasAni = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         inputC = GetComponent<CharacterInput>();
         //mainCamera = GameObject.FindGameObjectWithTag("Main Camera");
-        mainCamera = GetComponent<Third_PersonCamera>();
         checkGround = GetComponent<GroundChecker>();
         AnimationString();
     }
@@ -84,7 +89,6 @@ public class CharacterMovement : MonoBehaviour
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
-
         float currentHorSpeed = new Vector3(controller.velocity.x, 0, controller.velocity.z).magnitude;
         float speedOffset = .1f;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
@@ -107,7 +111,7 @@ public class CharacterMovement : MonoBehaviour
 
         if (inputC.move != Vector2.zero)
         {
-            targetRotation = Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
+            targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
 
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
@@ -163,5 +167,44 @@ public class CharacterMovement : MonoBehaviour
             inputC.jump = false;
         }
         if(verticalVelocity < terminalVelocity) verticalVelocity -= gravity * Time.deltaTime;
+    }
+
+    private bool enableMovementOnNextTouch;
+    private bool activeGrapple;
+    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    {
+        activeGrapple = true;
+
+        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        Invoke(nameof(SetVelocity), 0.1f);
+
+        Invoke(nameof(ResetRestrictions), 3f);
+    }
+
+    private Vector3 velocityToSet;
+    private void SetVelocity()
+    {
+        enableMovementOnNextTouch = true;
+        rb.velocity = velocityToSet;
+
+        //cam.DoFov(grappleFov);
+    }
+
+    public void ResetRestrictions()
+    {
+        activeGrapple = false;
+        //cam.DoFov(85f);
+    }
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+            + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
     }
 }
