@@ -858,6 +858,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f89f0d5b276eeb3448c55898f2b969b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pm: {fileID: 1754095874}
   cam: {fileID: 1457779480}
   gunTip: {fileID: 1650415218}
   whatIsGrappleable:
@@ -866,7 +867,8 @@ MonoBehaviour:
   lr: {fileID: 1650415219}
   maxGrappleDistance: 100
   grappleDelayTime: 0.1
-  overshootYAxis: 1
+  overshootYAxis: 2
+  inputC: {fileID: 1754095875}
   grapplingCd: 1
   grappleKey: 324
 --- !u!1 &1754095866
