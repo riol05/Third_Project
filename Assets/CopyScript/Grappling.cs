@@ -16,7 +16,7 @@ public class Grappling : MonoBehaviour
     [Header("Grappling")]
     public float maxGrappleDistance = 100;
     public float grappleDelayTime = 0.1f;
-    public float overshootYAxis = 1f;
+    public float overshootYAxis = 0f;
 
     private Vector3 grapplePoint;
 
@@ -41,21 +41,14 @@ public class Grappling : MonoBehaviour
         if (grapplingCdTimer > 0)
             grapplingCdTimer -= Time.deltaTime;
     }
-
-    public void ForTest(Action<String,float> callback)
-    {
-        float a = 4f;
-        float b = 5f;
-        string t = "name";
-        a = a + b;
-        callback(t,a);
-    }
+    
     private void StartGrapple()
     {
+        inputC.wire = false;
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
-
+        pm.freeze = true;
 
         RaycastHit hit;
         if(Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, maxGrappleDistance, whatIsGrappleable))
@@ -71,8 +64,8 @@ public class Grappling : MonoBehaviour
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
-        //lr.enabled = true;
-        //lr.SetPosition(1, grapplePoint);
+        lr.enabled = true;
+        lr.SetPosition(0, grapplePoint);
     }
 
     private void ExecuteGrapple()
@@ -92,12 +85,10 @@ public class Grappling : MonoBehaviour
 
     public void StopGrapple()
     {
-
+        pm.freeze = false;
         grappling = false;
-
         grapplingCdTimer = grapplingCd;
-
-        //lr.enabled = false;
+        lr.enabled = false;
     }
 
     public bool IsGrappling()

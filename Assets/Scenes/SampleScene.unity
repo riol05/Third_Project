@@ -184,7 +184,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 50.000004
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -210,8 +210,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.00479966, z: 0, w: 0.9999885}
-  m_LocalPosition: {x: 3.2690096, y: 8.97, z: -10.222171}
+  m_LocalRotation: {x: -1e-45, y: 0.00479966, z: 0, w: 0.9999885}
+  m_LocalPosition: {x: 3.3170056, y: 8.97, z: -5.222401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -623,7 +623,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1457779479}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.0000000037252903, z: -0, w: 1}
+  m_LocalRotation: {x: -1e-45, y: -0.0000000037252903, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -717,8 +717,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1650415218}
-  - component: {fileID: 1650415220}
   - component: {fileID: 1650415219}
+  - component: {fileID: 1650415220}
   m_Layer: 0
   m_Name: VirtualTarget
   m_TagString: Untagged
@@ -735,7 +735,7 @@ Transform:
   m_GameObject: {fileID: 1650415217}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -763,7 +763,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: e022e4fd7b5b060419c7f0a152a47c25, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -789,7 +789,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0.1
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -866,8 +866,8 @@ MonoBehaviour:
     m_Bits: 192
   lr: {fileID: 1650415219}
   maxGrappleDistance: 100
-  grappleDelayTime: 0.1
-  overshootYAxis: 2
+  grappleDelayTime: 0.25
+  overshootYAxis: 1
   inputC: {fileID: 1754095875}
   grapplingCd: 1
   grappleKey: 324
@@ -996,7 +996,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.0047996636, z: 0, w: 0.9999885}
   m_LocalPosition: {x: 3.3650017, y: 8.97, z: -0.22263145}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1650415218}
@@ -1015,6 +1015,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetCinemachine: {fileID: 1650415217}
+  vc: {fileID: 1457779480}
   LockCameraPosition: 1
   CameraAngleOverride: 0.01
   rotateSpeed: 0.02
@@ -1038,6 +1039,8 @@ MonoBehaviour:
   verticalVelocity: -20
   rotationVelocity: 0
   rotationSmoothTime: 0
+  freeze: 0
+  grap: {fileID: 1650415220}
 --- !u!114 &1754095875
 MonoBehaviour:
   m_ObjectHideFlags: 0

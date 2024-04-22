@@ -6,6 +6,13 @@ using UnityEngine;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Windows;
 
+public enum StateP
+{
+    Freeze,
+    Move,
+    Air
+
+}
 public class CharacterMovement : MonoBehaviour
 {
     [SerializeField]
@@ -19,7 +26,6 @@ public class CharacterMovement : MonoBehaviour
 
     private Rigidbody rb;
 
-    private bool hasAni;
     #region 加档 包访, 规氢 雀傈 包访
     private float speed;
     private float aniBlend;
@@ -48,10 +54,12 @@ public class CharacterMovement : MonoBehaviour
     #endregion
 
     #region 局聪皋捞记 string 包府
+    private bool hasAni;
     private string animWalkString;
     private string animRunString;
     private string animJumpgString;
     private string animFreeFallString;
+    private string animWireActionString;
 
     #endregion
 
@@ -61,7 +69,6 @@ public class CharacterMovement : MonoBehaviour
         hasAni = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         inputC = GetComponent<CharacterInput>();
-        //mainCamera = GameObject.FindGameObjectWithTag("Main Camera");
         checkGround = GetComponent<GroundChecker>();
         AnimationString();
     }
@@ -75,17 +82,30 @@ public class CharacterMovement : MonoBehaviour
         isGround =checkGround.GroundedCheck();
         Move();
         OnJump();
+        if(freeze)
+        {
+
+            speed = 0f;
+        }
+        if (isGround && !activeGrapple)
+        {
+            rb.drag = verticalVelocity;
+        }
+        else
+            rb.drag = 0f;
     }
     private void AnimationString()
     {
-        animJumpgString = "UserJump";
-        animWalkString = "UserWalk";
-        animRunString = "UserRun";
-        animFreeFallString = "UserFall";
+        animWalkString = "Walk";
+        animRunString = "Run";
+        animJumpgString = "Jump";
+        animFreeFallString = "Fall";
+        animWireActionString = "Grappling";
     }
 
     private void Move()
     {
+        if (activeGrapple) return; // grapple 包访
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
@@ -111,7 +131,7 @@ public class CharacterMovement : MonoBehaviour
 
         if (inputC.move != Vector2.zero)
         {
-            targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + mainCamera.transform.eulerAngles.y;
+            targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
 
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
@@ -144,7 +164,7 @@ public class CharacterMovement : MonoBehaviour
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
-                //if(hasAnimate)
+                if(hasAni)
                 ani.SetBool(animJumpgString, true);
             }
             
@@ -171,40 +191,52 @@ public class CharacterMovement : MonoBehaviour
 
     private bool enableMovementOnNextTouch;
     private bool activeGrapple;
+    private Vector3 velocityToSet;
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         activeGrapple = true;
 
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
         Invoke(nameof(SetVelocity), 0.1f);
-
+        
         Invoke(nameof(ResetRestrictions), 3f);
     }
 
-    private Vector3 velocityToSet;
     private void SetVelocity()
     {
         enableMovementOnNextTouch = true;
         rb.velocity = velocityToSet;
 
-        //cam.DoFov(grappleFov);
+        Third_PersonCamera.instance.DoFov(40f);
     }
 
+    public bool freeze;
     public void ResetRestrictions()
     {
         activeGrapple = false;
-        //cam.DoFov(85f);
+        Third_PersonCamera.instance.DoFov(85f);
     }
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
-        float gravity = Physics.gravity.y;
+        //float gravity = Physics.gravity.y;
         float displacementY = endPoint.y - startPoint.y;
         Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
 
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
-        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(2 * trajectoryHeight / gravity)
             + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
 
         return velocityXZ + velocityY;
+    }
+
+    public Grappling grap;
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            ResetRestrictions();
+        }
+        grap.StopGrapple();
     }
 }
