@@ -120,6 +120,7 @@ public class CharacterMovement : MonoBehaviour
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
         float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+        // rb.velocity는 원래 controll.velocity 였음
         float speedOffset = .1f;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
         if (currentHorSpeed < inputMagnitude - speedOffset ||
