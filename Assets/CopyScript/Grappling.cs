@@ -16,7 +16,7 @@ public class Grappling : MonoBehaviour
     [Header("Grappling")]
     public float maxGrappleDistance = 100;
     public float grappleDelayTime = 0.1f;
-    public float overshootYAxis = 0f;
+    public float overshootYAxis;
 
     private Vector3 grapplePoint;
 
@@ -44,7 +44,6 @@ public class Grappling : MonoBehaviour
     
     private void StartGrapple()
     {
-        inputC.wire = false;
         if (grapplingCdTimer > 0) return;
 
         grappling = true;
@@ -53,31 +52,31 @@ public class Grappling : MonoBehaviour
         RaycastHit hit;
         if(Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, maxGrappleDistance, whatIsGrappleable))
         {
+            print("hit");
             grapplePoint = hit.point;
 
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
+            print("Nhit");
+
             grapplePoint = cam.transform.position + cam.transform.forward * maxGrappleDistance;
 
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
-        lr.enabled = true;
-        lr.SetPosition(0, grapplePoint);
     }
 
     private void ExecuteGrapple()
     {
 
-        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
 
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
 
         if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
-
         pm.JumpToPosition(grapplePoint, highestPointOnArc);
 
         Invoke(nameof(StopGrapple), 1f);

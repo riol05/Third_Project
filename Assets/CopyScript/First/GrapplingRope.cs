@@ -8,11 +8,11 @@ public class GrapplingRope : MonoBehaviour {
     private Vector3 currentGrapplePosition;
     public GrapplingGun grapplingGun;
     public int quality;
-    public float damper;
-    public float strength;
-    public float velocity;
-    public float waveCount;
-    public float waveHeight;
+    public float damper = 14;
+    public float strength = 800;
+    public float velocity = 15;
+    public float waveCount = 3;
+    public float waveHeight = 1;
     public AnimationCurve affectCurve;
     
     void Awake() {

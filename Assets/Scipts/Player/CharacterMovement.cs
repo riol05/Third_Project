@@ -17,12 +17,14 @@ public class CharacterMovement : MonoBehaviour
 {
     [SerializeField]
     private CinemachineVirtualCamera mainCamera;
-    
+    [HideInInspector]
     public CharacterController controller;
+    [HideInInspector]
+    public GroundChecker checkGround;//isground();
+    
     private Animator ani;
     private CharacterInput inputC;
     //public GameObject mainCamera;
-    public GroundChecker checkGround;//isground();
 
     private Rigidbody rb;
 
@@ -47,8 +49,8 @@ public class CharacterMovement : MonoBehaviour
     private float jumpTimeOutDelta;
     private float jumpTimeOut = 0.15f;
 
-    private float jumpHeight;
-    private  float gravity =-15f;
+    private float jumpHeight = 2f;
+    private  float gravity = -15f;
 
     private float terminalVelocity = -53;
     #endregion
@@ -72,6 +74,8 @@ public class CharacterMovement : MonoBehaviour
         checkGround = GetComponent<GroundChecker>();
         AnimationString();
     }
+        bool b = false;
+
     private void Start()
     {
         jumpTimeOutDelta = jumpTimeOut;
@@ -79,17 +83,23 @@ public class CharacterMovement : MonoBehaviour
     }
     private void Update()
     {
+        inputC.wire = true;
+        if (!b)
+        {
+            activeGrapple = true;
+            b = true;
+        }
+
         isGround =checkGround.GroundedCheck();
         Move();
         OnJump();
         if(freeze)
         {
-
             speed = 0f;
         }
         if (isGround && !activeGrapple)
         {
-            rb.drag = verticalVelocity;
+            rb.drag = 2;
         }
         else
             rb.drag = 0f;
@@ -109,7 +119,7 @@ public class CharacterMovement : MonoBehaviour
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
-        float currentHorSpeed = new Vector3(controller.velocity.x, 0, controller.velocity.z).magnitude;
+        float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
         float speedOffset = .1f;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
         if (currentHorSpeed < inputMagnitude - speedOffset ||
@@ -138,7 +148,9 @@ public class CharacterMovement : MonoBehaviour
         }
 
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
-        controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+        transform.position += targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime;
+        //controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+        // CharacterController를 쓰려면 이부분을 어떻게든 해보자
 
         if (hasAni)
         {
@@ -149,7 +161,9 @@ public class CharacterMovement : MonoBehaviour
     
     private void OnJump()
     {
-        if(isGround)
+        if (activeGrapple) return; // grapple 관련
+
+        if (isGround)
         {
             fallTimeDelta = fallTimeOut;
             if (hasAni)
@@ -159,7 +173,7 @@ public class CharacterMovement : MonoBehaviour
             }
             
             if(verticalVelocity < 0)
-                verticalVelocity = -2f;
+                verticalVelocity = -25f;
             
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
@@ -190,15 +204,70 @@ public class CharacterMovement : MonoBehaviour
     }
 
     private bool enableMovementOnNextTouch;
-    private bool activeGrapple;
+    public bool activeGrapple;
     private Vector3 velocityToSet;
+    public Grappling grap;
+    //public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    //{
+    //    activeGrapple = true;
+    //    joint = gameObject.AddComponent<SpringJoint>();
+    //    joint.autoConfigureConnectedAnchor = false;
+    //    joint.connectedAnchor = targetPosition;
+
+    //    velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+    //    Invoke(nameof(SetVelocity), 0.1f);
+
+    //    Invoke(nameof(ResetRestrictions), 3f);
+    //}
+
+    //private void SetVelocity()
+    //{
+    //    enableMovementOnNextTouch = true;
+    //    joint.spring = 4.5f;
+    //    joint.damper = 7f;
+    //    joint.massScale = 4.5f;
+
+    //    Third_PersonCamera.instance.DoFov(40f);
+    //}
+
+    //public bool freeze;
+    //public void ResetRestrictions()
+    //{
+    //    Destroy(joint);
+    //    Third_PersonCamera.instance.DoFov(85f);
+    //}
+    //public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    //{
+    //    //float gravity = Physics.gravity.y;
+    //    float displacementY = endPoint.y - startPoint.y;
+    //    Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+    //    Vector3 velocityY = Vector3.up * Mathf.Sqrt(2 * gravity * trajectoryHeight); // 안되면 - 빼주기
+    //    Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(2 * trajectoryHeight / gravity)
+    //        + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+    //    return velocityXZ + velocityY;
+    //}
+
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (enableMovementOnNextTouch)
+    //    {
+    //        enableMovementOnNextTouch = false;
+    //        ResetRestrictions();
+    //    }
+    //    grap.StopGrapple();
+    //}
+
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         activeGrapple = true;
 
+
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        //print("velocityToSet"+ velocityToSet);
         Invoke(nameof(SetVelocity), 0.1f);
-        
+
         Invoke(nameof(ResetRestrictions), 3f);
     }
 
@@ -206,6 +275,7 @@ public class CharacterMovement : MonoBehaviour
     {
         enableMovementOnNextTouch = true;
         rb.velocity = velocityToSet;
+        //controller.Move(velocityToSet);
 
         Third_PersonCamera.instance.DoFov(40f);
     }
@@ -213,23 +283,23 @@ public class CharacterMovement : MonoBehaviour
     public bool freeze;
     public void ResetRestrictions()
     {
+
         activeGrapple = false;
         Third_PersonCamera.instance.DoFov(85f);
     }
     public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
     {
-        //float gravity = Physics.gravity.y;
+        float gravity = Physics.gravity.y;
         float displacementY = endPoint.y - startPoint.y;
         Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
 
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(2 * gravity * trajectoryHeight);
-        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(2 * trajectoryHeight / gravity)
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
             + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
 
         return velocityXZ + velocityY;
     }
 
-    public Grappling grap;
     private void OnCollisionEnter(Collision collision)
     {
         if (enableMovementOnNextTouch)

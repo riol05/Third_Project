@@ -5,59 +5,73 @@ public class GrapplingGun : MonoBehaviour {
     
     private Vector3 grapplePoint;
     public LayerMask whatIsGrappleable;
-    public Transform gunTip;
+    
     public CinemachineVirtualCamera camera;
     public CharacterMovement cm;
-    private float maxDistance = 100f;
+    public Transform gunTip;
     private SpringJoint joint;
+    public CharacterInput inputC;
+    bool isGrappling;
+    
+    private float maxDistance = 100f;
 
-    void Update() {
-        if (Input.GetMouseButtonDown(0)) {
+    [Header("Cooldown")]
+    public float grapplingCd = 1f;
+    private float grapplingCdTimer;
+
+    private void Awake()
+    {
+        grapplingCdTimer = grapplingCd;
+    }
+    void Update() 
+    {
+        if (inputC.wire && !isGrappling) {
             StartGrapple();
         }
-        else if (Input.GetMouseButtonUp(0)) {
-            StopGrapple();
-        }
+
+        if (grapplingCdTimer > 0)
+            grapplingCdTimer -= Time.deltaTime;
     }
 
 
 
-    /// <summary>
-    /// Call whenever we want to start a grapple
-    /// </summary>
-    void StartGrapple() {
+    void StartGrapple() 
+    {
+        inputC.wire = false;
+        isGrappling = true;
         RaycastHit hit;
-        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, maxDistance, whatIsGrappleable)) {
+        if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, maxDistance, whatIsGrappleable))
+        {
             grapplePoint = hit.point;
-            joint = cm.gameObject.AddComponent<SpringJoint>();
+            joint = cm.gameObject.GetComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
             joint.connectedAnchor = grapplePoint;
 
             float distanceFromPoint = Vector3.Distance(cm.transform.position, grapplePoint);
 
             //The distance grapple will try to keep from grapple point. 
-            joint.maxDistance = distanceFromPoint * 0.8f;
+            joint.maxDistance = distanceFromPoint * 0.3f;
             joint.minDistance = distanceFromPoint * 0.25f;
 
             //Adjust these values to fit your game.
-            joint.spring = 4.5f;
-            joint.damper = 7f;
-            joint.massScale = 4.5f;
+            joint.spring = 90f;
+            joint.damper = 2f;
+            joint.massScale = 100f;
         }
+        Invoke(nameof(StopGrapple), 3f);
     }
 
 
-    /// <summary>
-    /// Call whenever we want to stop a grapple
-    /// </summary>
-    void StopGrapple() {
-        Destroy(joint);
+    void StopGrapple() 
+    {
+        grapplingCdTimer = grapplingCd;
+        isGrappling = false;
     }
 
 
 
     public bool IsGrappling() {
-        return joint != null;
+        return isGrappling;
     }
 
     public Vector3 GetGrapplePoint() {
