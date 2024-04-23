@@ -42,9 +42,9 @@ public class ObjectChecker : MonoBehaviour
     }
 
 
-    public bool CheckFront() // 정면 체크 필요
+    public bool CheckFront() // 
     {
-        Vector3 rayHere = new Vector3(0, Vector3.forward.y, 0);
+        Vector3 rayHere = new Vector3(0, transform.forward.y, 0);
 
         if (Physics.Raycast(transform.position, rayHere, wallCheckOffSet))
         {
