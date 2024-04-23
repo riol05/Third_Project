@@ -63,7 +63,6 @@ public class CharacterInput : MonoBehaviour
 
     private void MoveInput(Vector2 movedir)
     {
-        print($"{movedir}");
         move = movedir;
     }
 

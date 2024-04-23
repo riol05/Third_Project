@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.UIElements;
 using UnityEngine.Windows;
 
 public enum StateP
@@ -21,10 +22,10 @@ public class CharacterMovement : MonoBehaviour
     public CharacterController controller;
     [HideInInspector]
     public GroundChecker checkGround;//isground();
-    
+    private ObjectChecker checkObject; // isSlope();
+
     private Animator ani;
     private CharacterInput inputC;
-    //public GameObject mainCamera;
 
     private Rigidbody rb;
 
@@ -33,12 +34,14 @@ public class CharacterMovement : MonoBehaviour
     private float aniBlend;
     private float targetRotation;
     private float speedChangeRate = 10;
-    public float sprintSpeed;
+    private float sprintSpeed;
     public float moveSpeed;
 
-    public float verticalVelocity;
     public float rotationVelocity;
     public float rotationSmoothTime;
+
+    private bool isSlope;
+    private bool isWallHere;
     #endregion
 
     #region 점프
@@ -52,14 +55,13 @@ public class CharacterMovement : MonoBehaviour
     private float jumpHeight = 2f;
     private  float gravity = -15f;
 
-    private float terminalVelocity = -53;
     #endregion
 
     #region 애니메이션 string 관리
     private bool hasAni;
     private string animWalkString;
     private string animRunString;
-    private string animJumpgString;
+    private string animJumpString;
     private string animFreeFallString;
     private string animWireActionString;
 
@@ -69,27 +71,22 @@ public class CharacterMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         hasAni = GetComponent<Animator>();
-        controller = GetComponent<CharacterController>();
+        //controller = GetComponent<CharacterController>();
         inputC = GetComponent<CharacterInput>();
         checkGround = GetComponent<GroundChecker>();
+        checkObject = GetComponent<ObjectChecker>();
         AnimationString();
     }
-        bool b = false;
 
     private void Start()
     {
         jumpTimeOutDelta = jumpTimeOut;
         fallTimeDelta = fallTimeOut;
+        sprintSpeed = moveSpeed * 2f; // 달리기 속도 설정
+        Physics.gravity = Physics.gravity * 2f;
     }
     private void Update()
     {
-        inputC.wire = true;
-        if (!b)
-        {
-            activeGrapple = true;
-            b = true;
-        }
-
         isGround =checkGround.GroundedCheck();
         Move();
         OnJump();
@@ -108,51 +105,67 @@ public class CharacterMovement : MonoBehaviour
     {
         animWalkString = "Walk";
         animRunString = "Run";
-        animJumpgString = "Jump";
+        animJumpString = "Jump";
         animFreeFallString = "Fall";
         animWireActionString = "Grappling";
     }
 
     private void Move()
     {
+        if (checkObject.CheckFront()) return;
+
         if (activeGrapple) return; // grapple 관련
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
+        
         float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        // rb.velocity는 원래 controll.velocity 였음
         float speedOffset = .1f;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
-        if (currentHorSpeed < inputMagnitude - speedOffset ||
-            currentHorSpeed > inputMagnitude + speedOffset)
+
+        if (currentHorSpeed < inputMagnitude - speedOffset)
         {
             speed = Mathf.Lerp(currentHorSpeed, targetSpeed * inputMagnitude,
-                Time.deltaTime * speedChangeRate); // 10f = speedChangeRate;
-            speed = Mathf.Round(speed * 1000f) / 1000f;
+                Time.deltaTime * speedChangeRate); 
+            speed = Mathf.Round(speed * 1000f) / 100f;
+
+        }
+        else if (currentHorSpeed > inputMagnitude + speedOffset)
+        {
+            speed = targetSpeed;
         }
         else
         {
             speed = targetSpeed;
         }
 
-        aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);// 10f = speedChangerate
+
+        aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
         if (aniBlend < 0f) aniBlend = 0f;
 
         Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
 
+        targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
         if (inputC.move != Vector2.zero)
         {
-            targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
-
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
-
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
-        transform.position += targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime;
-        //controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
-        // CharacterController를 쓰려면 이부분을 어떻게든 해보자
+        if (isGround)
+            rb.AddForce(targetDirection * speed * 2, ForceMode.Force);
+        
+        else if (checkObject.SlopeCheck() && isGround)
+            rb.AddForce(checkObject.GetSlopeMoveDirection(targetDirection) * speed * 1.5f, ForceMode.Force);
 
+        else if(!isGround)
+            rb.AddForce(targetDirection * speed * 1.7f
+                /*+ new Vector3(0f , verticalVelocity ,0f)*/, ForceMode.Force);
+        else if (inputC.move == Vector2.zero || checkObject.CheckFront()) 
+            rb.velocity = Vector3.zero;
+
+
+        print(speed);
         if (hasAni)
         {
             ani.SetFloat(animWalkString, aniBlend);
@@ -169,106 +182,48 @@ public class CharacterMovement : MonoBehaviour
             fallTimeDelta = fallTimeOut;
             if (hasAni)
             {
-                ani.SetBool(animJumpgString, false);
+                ani.SetBool(animJumpString, false);
                 ani.SetBool(animFreeFallString, false);
             }
             
-            if(verticalVelocity < 0)
-                verticalVelocity = -25f;
             
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+                rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
                 if(hasAni)
-                ani.SetBool(animJumpgString, true);
+                ani.SetBool(animJumpString, true);
             }
-            
-            if(jumpTimeOutDelta >= 0f)
+            if (jumpTimeOutDelta >= 0f)
+            {
                 jumpTimeOutDelta -= Time.deltaTime;
+                inputC.jump = false;
+            }
+
         }
         else
         {
             jumpTimeOutDelta = jumpTimeOut;
-
             if(fallTimeDelta >= 0)
-            {
                 fallTimeDelta -= Time.deltaTime;
-            }
             else
             {
                 if(hasAni)
                 ani.SetBool(animFreeFallString, true);
             }
-            inputC.jump = false;
         }
-        if(verticalVelocity < terminalVelocity) verticalVelocity -= gravity * Time.deltaTime;
     }
 
     private bool enableMovementOnNextTouch;
     public bool activeGrapple;
     private Vector3 velocityToSet;
     public Grappling grap;
-    //public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
-    //{
-    //    activeGrapple = true;
-    //    joint = gameObject.AddComponent<SpringJoint>();
-    //    joint.autoConfigureConnectedAnchor = false;
-    //    joint.connectedAnchor = targetPosition;
-
-    //    velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
-    //    Invoke(nameof(SetVelocity), 0.1f);
-
-    //    Invoke(nameof(ResetRestrictions), 3f);
-    //}
-
-    //private void SetVelocity()
-    //{
-    //    enableMovementOnNextTouch = true;
-    //    joint.spring = 4.5f;
-    //    joint.damper = 7f;
-    //    joint.massScale = 4.5f;
-
-    //    Third_PersonCamera.instance.DoFov(40f);
-    //}
-
-    //public bool freeze;
-    //public void ResetRestrictions()
-    //{
-    //    Destroy(joint);
-    //    Third_PersonCamera.instance.DoFov(85f);
-    //}
-    //public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
-    //{
-    //    //float gravity = Physics.gravity.y;
-    //    float displacementY = endPoint.y - startPoint.y;
-    //    Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
-
-    //    Vector3 velocityY = Vector3.up * Mathf.Sqrt(2 * gravity * trajectoryHeight); // 안되면 - 빼주기
-    //    Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(2 * trajectoryHeight / gravity)
-    //        + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
-
-    //    return velocityXZ + velocityY;
-    //}
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (enableMovementOnNextTouch)
-    //    {
-    //        enableMovementOnNextTouch = false;
-    //        ResetRestrictions();
-    //    }
-    //    grap.StopGrapple();
-    //}
 
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         activeGrapple = true;
 
-
         velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
-        //print("velocityToSet"+ velocityToSet);
         Invoke(nameof(SetVelocity), 0.1f);
-
         Invoke(nameof(ResetRestrictions), 3f);
     }
 
@@ -276,15 +231,12 @@ public class CharacterMovement : MonoBehaviour
     {
         enableMovementOnNextTouch = true;
         rb.velocity = velocityToSet;
-        //controller.Move(velocityToSet);
-
         Third_PersonCamera.instance.DoFov(40f);
     }
 
     public bool freeze;
     public void ResetRestrictions()
     {
-
         activeGrapple = false;
         Third_PersonCamera.instance.DoFov(85f);
     }
@@ -293,7 +245,6 @@ public class CharacterMovement : MonoBehaviour
         float gravity = Physics.gravity.y;
         float displacementY = endPoint.y - startPoint.y;
         Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
-
         Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
         Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity)
             + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));

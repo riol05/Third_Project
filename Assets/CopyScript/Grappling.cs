@@ -29,17 +29,16 @@ public class Grappling : MonoBehaviour
     public KeyCode grappleKey = KeyCode.Mouse1;
 
     private bool grappling;
-
-    private void Start()
-    {
-    }
-
     private void Update()
     {
         if (inputC.wire) StartGrapple();
 
         if (grapplingCdTimer > 0)
+        {
             grapplingCdTimer -= Time.deltaTime;
+            if(inputC.wire)
+                inputC.wire = false;
+        }
     }
     
     private void StartGrapple()
@@ -52,20 +51,14 @@ public class Grappling : MonoBehaviour
         RaycastHit hit;
         if(Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, maxGrappleDistance, whatIsGrappleable))
         {
-            print("hit");
             grapplePoint = hit.point;
-
             Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
-            print("Nhit");
-
             grapplePoint = cam.transform.position + cam.transform.forward * maxGrappleDistance;
-
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
-
     }
 
     private void ExecuteGrapple()

@@ -13,13 +13,8 @@ public class GroundChecker : MonoBehaviour
     [Header("Debug")]
     public bool OnGizmo;
 
-    private void Update()
-    {
-        if(GroundedCheck())
-        {
-            print("collision now");
-        }
-    }
+    public bool isSlope;
+
     private void OnDrawGizmos()
     {
         if(OnGizmo)

@@ -49,14 +49,10 @@ public class GrapplingRope_MLab : MonoBehaviour
 
         if(lr.positionCount == 0)
         {
-            // set the start velocity of the simulation
             spring.SetVelocity(velocity);
 
-            // set the positionCount of the lineRenderer depending on the quality of the rope
             lr.positionCount = quality + 1;
         }
-
-        // set the spring simulation
         spring.SetDamper(damper);
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);
