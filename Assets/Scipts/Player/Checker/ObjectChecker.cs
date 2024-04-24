@@ -8,9 +8,6 @@ public class ObjectChecker : MonoBehaviour
     public float slopeCheckerOffSet;
     public float maxSlopeAngle;
 
-    [Header("Wall")]
-    public float wallCheckOffSet;
-
     [SerializeField]
     private LayerMask GroundLayer;
     [Header("Debug")]
@@ -20,13 +17,10 @@ public class ObjectChecker : MonoBehaviour
     {
         if(onGizmo)
         {
-            Vector3 rayHere = new Vector3(transform.forward.x, 0, transform.forward.z);
-
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, Vector3.down * slopeCheckerOffSet);
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, rayHere * wallCheckOffSet);
 
+            
         }
     }
         RaycastHit hitInfo;
@@ -45,14 +39,4 @@ public class ObjectChecker : MonoBehaviour
     }
 
 
-    public bool CheckFront() // 
-    {
-        Vector3 rayHere = new Vector3(transform.forward.x, 0, transform.forward.z);
-
-        if (Physics.Raycast(transform.position, rayHere, wallCheckOffSet))
-        {
-            return true;
-        }
-        return false;
-    }
 }

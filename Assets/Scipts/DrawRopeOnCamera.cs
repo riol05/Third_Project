@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GrapplingRope_MLab : MonoBehaviour
+public class DrawRopeOnCamera : MonoBehaviour
 {
     [Header("References")]
     public Grappling grappling;
@@ -27,7 +27,6 @@ public class GrapplingRope_MLab : MonoBehaviour
         spring.SetTarget(0);
     }
 
-    //Called after Update
     private void LateUpdate()
     {
         DrawRope();
@@ -38,19 +37,15 @@ public class GrapplingRope_MLab : MonoBehaviour
         if (!grappling.IsGrappling())
         {
             currentGrapplePosition = grappling.gunTip.position;
-
             spring.Reset();
 
             if (lr.positionCount > 0)
                 lr.positionCount = 0;
-
             return;
         }
-
         if(lr.positionCount == 0)
         {
             spring.SetVelocity(velocity);
-
             lr.positionCount = quality + 1;
         }
         spring.SetDamper(damper);

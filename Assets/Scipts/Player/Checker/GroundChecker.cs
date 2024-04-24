@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GroundChecker : MonoBehaviour
 {
-    private float GroundedRadius = 0.28f;
-    private float GroundedOffset = 0.86f;
+    public float GroundedRadius = 0.2f;
+    public float GroundedOffset = 0.86f;
     [SerializeField]
     private LayerMask GroundLayers;
 

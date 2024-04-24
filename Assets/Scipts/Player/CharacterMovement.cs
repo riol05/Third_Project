@@ -22,7 +22,10 @@ public class CharacterMovement : MonoBehaviour
     public CharacterController controller;
     [HideInInspector]
     public GroundChecker checkGround;//isground();
-    private ObjectChecker checkObject; // isSlope();
+    [HideInInspector]
+    public ObjectChecker checkObject; // isSlope();
+    [HideInInspector]
+    public WallRunning wall;
 
     private Animator ani;
     private CharacterInput inputC;
@@ -46,6 +49,8 @@ public class CharacterMovement : MonoBehaviour
 
     #region 점프
     private bool isGround;
+    public bool isground { get { return isGround; } }
+
     private float fallTimeDelta;
     private float fallTimeOut = 0.5f;
 
@@ -75,6 +80,7 @@ public class CharacterMovement : MonoBehaviour
         inputC = GetComponent<CharacterInput>();
         checkGround = GetComponent<GroundChecker>();
         checkObject = GetComponent<ObjectChecker>();
+        wall = GetComponent<WallRunning>();
         AnimationString();
     }
 
@@ -126,21 +132,12 @@ public class CharacterMovement : MonoBehaviour
                 Time.deltaTime * speedChangeRate); 
             speed = Mathf.Round(speed * 1000f) / 100f;
         }
-        else if (currentHorSpeed > inputMagnitude + speedOffset)
+        else
         {
             speed = targetSpeed;
         }
-        //else
-        //{
-        //    speed = targetSpeed;
-        //}
-
-
-        aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
-        if (aniBlend < 0f) aniBlend = 0f; // 애니메이션 코드
 
         Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
-
         targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
         if (inputC.move != Vector2.zero)
         {
@@ -148,39 +145,35 @@ public class CharacterMovement : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
-        //if (isGround)
-        //    rb.AddForce(targetDirection * speed * 2, ForceMode.Force);
 
-        //else if (checkObject.SlopeCheck() && isGround)
-        //    rb.AddForce(checkObject.GetSlopeMoveDirection(targetDirection) * speed * 1.5f, ForceMode.Force);
+        aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
+        if (aniBlend < 0f) aniBlend = 0f; // 애니메이션
 
-        //else if (!isGround)
-        //    rb.AddForce(targetDirection * speed * 1.7f
-        //        /*+ new Vector3(0f , verticalVelocity ,0f)*/, ForceMode.Force);
-        if (isGround || checkObject.SlopeCheck())
-        {
-            float accelerationMultiplier = isGround ? 2f : 1.7f; // 지면 또는 공중에서의 가속을 구분하여 설정
-            if (checkObject.SlopeCheck()) accelerationMultiplier = 1.5f; // 경사면에서의 가속 조정
-            rb.AddForce(targetDirection * speed * accelerationMultiplier, ForceMode.Force);
-        }
-        else if (inputC.move == Vector2.zero || checkObject.CheckFront())
-        {
-            print("stop");
-            rb.velocity = Vector3.zero;
-        }
-        else if(!isGround)
-        {
-            // 공중에 있는 경우는 수평 방향으로의 가속만 적용
-            Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
-            rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
-        }
-
-        print(speed);
         if (hasAni)
         {
             ani.SetFloat(animWalkString, aniBlend);
             ani.SetFloat(animRunString, inputMagnitude);
         }
+        // 경사 체크, 속도 관련
+        if (isGround && inputC.move == Vector2.zero || wall.CheckWall())
+        {
+            print("stop");
+            rb.velocity = Vector3.zero;
+        }
+        else if (isGround || checkObject.SlopeCheck())
+        {
+            float accelSpeed = isGround ? 2f : 1.7f; // 지면 또는 공중에서의 가속을 구분하여 설정
+            if (checkObject.SlopeCheck()) accelSpeed = 1.5f; // 경사면에서의 가속 조정
+
+            rb.AddForce(targetDirection * speed * accelSpeed, ForceMode.Force);
+            //rb.MovePosition(targetDirection * speed * accelSpeed);
+        }
+        else if(!isGround)
+        {
+            Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+            rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
+        }
+        print(speed);
     }
     
     private void OnJump()
@@ -196,19 +189,17 @@ public class CharacterMovement : MonoBehaviour
                 ani.SetBool(animFreeFallString, false);
             }
             
-            
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
                 rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
                 if(hasAni)
-                ani.SetBool(animJumpString, true);
+                ani.SetBool(animJumpString, true); // 점프 애니메이션
             }
             if (jumpTimeOutDelta >= 0f)
             {
                 jumpTimeOutDelta -= Time.deltaTime;
                 inputC.jump = false;
             }
-
         }
         else
         {
@@ -217,7 +208,7 @@ public class CharacterMovement : MonoBehaviour
                 fallTimeDelta -= Time.deltaTime;
             else
             {
-                if(hasAni)
+                if(hasAni) // 추락 애니메이션
                 ani.SetBool(animFreeFallString, true);
             }
         }
