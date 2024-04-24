@@ -112,36 +112,32 @@ public class CharacterMovement : MonoBehaviour
 
     private void Move()
     {
-        if (checkObject.CheckFront()) return;
-
         if (activeGrapple) return; // grapple 관련
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
-        
         float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float speedOffset = .1f;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
-
+        float speedOffset = .1f;
+        
         if (currentHorSpeed < inputMagnitude - speedOffset)
         {
             speed = Mathf.Lerp(currentHorSpeed, targetSpeed * inputMagnitude,
                 Time.deltaTime * speedChangeRate); 
             speed = Mathf.Round(speed * 1000f) / 100f;
-
         }
         else if (currentHorSpeed > inputMagnitude + speedOffset)
         {
             speed = targetSpeed;
         }
-        else
-        {
-            speed = targetSpeed;
-        }
+        //else
+        //{
+        //    speed = targetSpeed;
+        //}
 
 
         aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
-        if (aniBlend < 0f) aniBlend = 0f;
+        if (aniBlend < 0f) aniBlend = 0f; // 애니메이션 코드
 
         Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
 
@@ -152,18 +148,32 @@ public class CharacterMovement : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
-        if (isGround)
-            rb.AddForce(targetDirection * speed * 2, ForceMode.Force);
-        
-        else if (checkObject.SlopeCheck() && isGround)
-            rb.AddForce(checkObject.GetSlopeMoveDirection(targetDirection) * speed * 1.5f, ForceMode.Force);
+        //if (isGround)
+        //    rb.AddForce(targetDirection * speed * 2, ForceMode.Force);
 
-        else if(!isGround)
-            rb.AddForce(targetDirection * speed * 1.7f
-                /*+ new Vector3(0f , verticalVelocity ,0f)*/, ForceMode.Force);
-        else if (inputC.move == Vector2.zero || checkObject.CheckFront()) 
+        //else if (checkObject.SlopeCheck() && isGround)
+        //    rb.AddForce(checkObject.GetSlopeMoveDirection(targetDirection) * speed * 1.5f, ForceMode.Force);
+
+        //else if (!isGround)
+        //    rb.AddForce(targetDirection * speed * 1.7f
+        //        /*+ new Vector3(0f , verticalVelocity ,0f)*/, ForceMode.Force);
+        if (isGround || checkObject.SlopeCheck())
+        {
+            float accelerationMultiplier = isGround ? 2f : 1.7f; // 지면 또는 공중에서의 가속을 구분하여 설정
+            if (checkObject.SlopeCheck()) accelerationMultiplier = 1.5f; // 경사면에서의 가속 조정
+            rb.AddForce(targetDirection * speed * accelerationMultiplier, ForceMode.Force);
+        }
+        else if (inputC.move == Vector2.zero || checkObject.CheckFront())
+        {
+            print("stop");
             rb.velocity = Vector3.zero;
-
+        }
+        else if(!isGround)
+        {
+            // 공중에 있는 경우는 수평 방향으로의 가속만 적용
+            Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+            rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
+        }
 
         print(speed);
         if (hasAni)
