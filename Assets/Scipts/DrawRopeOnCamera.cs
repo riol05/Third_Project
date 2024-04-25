@@ -16,14 +16,14 @@ public class DrawRopeOnCamera : MonoBehaviour
     public float waveHeight = 1;
     public AnimationCurve affectCurve;
 
-    private Spring_MLab spring; 
+    private Spring spring; 
     private LineRenderer lr;
     private Vector3 currentGrapplePosition;
 
     private void Awake()
     {
         lr = GetComponent<LineRenderer>();
-        spring = new Spring_MLab();
+        spring = new Spring();
         spring.SetTarget(0);
     }
 
@@ -48,6 +48,7 @@ public class DrawRopeOnCamera : MonoBehaviour
             spring.SetVelocity(velocity);
             lr.positionCount = quality + 1;
         }
+
         spring.SetDamper(damper);
         spring.SetStrength(strength);
         spring.Update(Time.deltaTime);

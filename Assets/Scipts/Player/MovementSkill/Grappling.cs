@@ -11,7 +11,6 @@ public class Grappling : MonoBehaviour
     public CinemachineVirtualCamera cam;
     public Transform gunTip;
     public LayerMask whatIsGrappleable;
-    public LineRenderer lr;
 
     [Header("Grappling")]
     public float maxGrappleDistance = 100;
@@ -29,6 +28,7 @@ public class Grappling : MonoBehaviour
     public KeyCode grappleKey = KeyCode.Mouse1;
 
     private bool grappling;
+    public bool isGrappling { get { return grappling; } }
     private void Update()
     {
         if (inputC.wire) StartGrapple();
@@ -36,15 +36,13 @@ public class Grappling : MonoBehaviour
         if (grapplingCdTimer > 0)
         {
             grapplingCdTimer -= Time.deltaTime;
-            if(inputC.wire)
-                inputC.wire = false;
         }
     }
     
     private void StartGrapple()
     {
         if (grapplingCdTimer > 0) return;
-
+        inputC.wire = false;
         grappling = true;
         pm.freeze = true;
 
@@ -80,7 +78,6 @@ public class Grappling : MonoBehaviour
         pm.freeze = false;
         grappling = false;
         grapplingCdTimer = grapplingCd;
-        lr.enabled = false;
     }
 
     public bool IsGrappling()

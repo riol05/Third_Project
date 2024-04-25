@@ -19,18 +19,17 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField]
     private CinemachineVirtualCamera mainCamera;
     [HideInInspector]
-    public CharacterController controller;
-    [HideInInspector]
     public GroundChecker checkGround;//isground();
     [HideInInspector]
     public ObjectChecker checkObject; // isSlope();
     [HideInInspector]
     public WallRunning wall;
+    [HideInInspector]
+    public Rigidbody rb;
 
     private Animator ani;
     private CharacterInput inputC;
 
-    private Rigidbody rb;
 
     #region 속도 관련, 방향 회전 관련
     private float speed;
@@ -58,7 +57,6 @@ public class CharacterMovement : MonoBehaviour
     private float jumpTimeOut = 0.15f;
 
     private float jumpHeight = 2f;
-    private  float gravity = -15f;
 
     #endregion
 
@@ -122,20 +120,20 @@ public class CharacterMovement : MonoBehaviour
 
         float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
         if (inputC.move == Vector2.zero) targetSpeed = 0f;
-        float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
+        //float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
         float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
-        float speedOffset = .1f;
+        //float speedOffset = .1f;
         
-        if (currentHorSpeed < inputMagnitude - speedOffset)
-        {
-            speed = Mathf.Lerp(currentHorSpeed, targetSpeed * inputMagnitude,
-                Time.deltaTime * speedChangeRate); 
-            speed = Mathf.Round(speed * 1000f) / 100f;
-        }
-        else
-        {
+        //if (currentHorSpeed < inputMagnitude - speedOffset)
+        //{
+        //    speed = Mathf.Lerp(currentHorSpeed, targetSpeed * inputMagnitude,
+        //        Time.deltaTime * speedChangeRate); 
+        //    speed = Mathf.Round(speed * 1000f) / 100f;
+        //}
+        //else
+        //{
             speed = targetSpeed;
-        }
+        //}
 
         Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
         targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
@@ -155,20 +153,19 @@ public class CharacterMovement : MonoBehaviour
             ani.SetFloat(animRunString, inputMagnitude);
         }
         // 경사 체크, 속도 관련
-        if (isGround && inputC.move == Vector2.zero || wall.CheckWall())
+        if (inputC.move == Vector2.zero && (isGround || wall.CheckWall()))
         {
             print("stop");
             rb.velocity = Vector3.zero;
         }
         else if (isGround || checkObject.SlopeCheck())
         {
-            float accelSpeed = isGround ? 2f : 1.7f; // 지면 또는 공중에서의 가속을 구분하여 설정
+            float accelSpeed = 2f;
             if (checkObject.SlopeCheck()) accelSpeed = 1.5f; // 경사면에서의 가속 조정
 
             rb.AddForce(targetDirection * speed * accelSpeed, ForceMode.Force);
-            //rb.MovePosition(targetDirection * speed * accelSpeed);
         }
-        else if(!isGround)
+        else if(!isGround && !wall.CheckWall())
         {
             Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
             rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
@@ -191,7 +188,7 @@ public class CharacterMovement : MonoBehaviour
             
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
-                rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
+                rb.AddForce(transform.up * jumpHeight, f);
                 if(hasAni)
                 ani.SetBool(animJumpString, true); // 점프 애니메이션
             }

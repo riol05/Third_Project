@@ -5,15 +5,13 @@ using UnityEngine;
 
 public class GroundChecker : MonoBehaviour
 {
-    public float GroundedRadius = 0.2f;
-    public float GroundedOffset = 0.86f;
+    private float GroundedRadius = 0.2f;
+    private float GroundedOffset = 0.86f;
     [SerializeField]
     private LayerMask GroundLayers;
 
     [Header("Debug")]
     public bool OnGizmo;
-
-    public bool isSlope;
 
     private void OnDrawGizmos()
     {
