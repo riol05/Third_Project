@@ -116,25 +116,6 @@ public class CharacterMovement : MonoBehaviour
 
     private void Move()
     {
-        if (activeGrapple) return; // grapple 관련
-
-        float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
-        if (inputC.move == Vector2.zero) targetSpeed = 0f;
-        //float currentHorSpeed = new Vector3(rb.velocity.x, 0, rb.velocity.z).magnitude;
-        float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
-        //float speedOffset = .1f;
-        
-        //if (currentHorSpeed < inputMagnitude - speedOffset)
-        //{
-        //    speed = Mathf.Lerp(currentHorSpeed, targetSpeed * inputMagnitude,
-        //        Time.deltaTime * speedChangeRate); 
-        //    speed = Mathf.Round(speed * 1000f) / 100f;
-        //}
-        //else
-        //{
-            speed = targetSpeed;
-        //}
-
         Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
         targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
         if (inputC.move != Vector2.zero)
@@ -142,7 +123,16 @@ public class CharacterMovement : MonoBehaviour
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
-        Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward;
+        Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward; // 
+
+        if (activeGrapple) return; // grapple 관련
+
+        float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
+        if (inputC.move == Vector2.zero) targetSpeed = 0f;
+        float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
+        speed = targetSpeed;
+
+        //캐릭터 움직임이 이상하면 Look 메서드에 들어갈 코드를 이쪽으로
 
         aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
         if (aniBlend < 0f) aniBlend = 0f; // 애니메이션
@@ -188,7 +178,7 @@ public class CharacterMovement : MonoBehaviour
             
             if(inputC.jump && jumpTimeOutDelta <= 0f)
             {
-                rb.AddForce(transform.up * jumpHeight, f);
+                rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
                 if(hasAni)
                 ani.SetBool(animJumpString, true); // 점프 애니메이션
             }

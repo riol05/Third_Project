@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,17 +9,24 @@ using UnityEngine.InputSystem;
 public class CharacterInput : MonoBehaviour
 {
        
+    public static CharacterInput instance;
     public Vector2 look;
     public Vector2 move;
     public bool sprint;
     public bool jump;
     public bool wire;
-
     public bool analogMovement;
+
+    public bool isChangeWeaponTime;
+    public int changeWeapon;
 
     public bool isCursorLock = true;
     public bool cursorInputForLook = true;
-    
+
+    private void Awake()
+    {
+        instance = this;
+    }
     public void OnMove(InputValue value)
     {
         MoveInput(value.Get<Vector2>());
@@ -29,6 +37,12 @@ public class CharacterInput : MonoBehaviour
         {
             LookInput(value.Get<Vector2>());
         }
+    }
+    public void OnSkillChange(InputValue value)
+    {
+        var ScrollValue = value.Get<float>();
+
+        ScrollInput(ScrollValue);
     }
     public void OnJump(InputValue value)
     {
@@ -43,6 +57,37 @@ public class CharacterInput : MonoBehaviour
         WireInput(value.isPressed);
     }
 
+    public void OnChangeTime(InputValue value)
+    {
+        ChangeTime(value.isPressed);
+    }
+    private void ChangeTime(bool ison)
+    {
+        isChangeWeaponTime = ison;
+    }
+    private void ScrollInput(float f)
+    {
+        if (isChangeWeaponTime)
+        {
+
+            if (f < 0)
+            {
+                f = 0;
+                ++changeWeapon;
+            }
+
+            else if (f > 0)
+            {
+                f = 0;
+                --changeWeapon;
+            }
+
+            if (changeWeapon > 4)
+                changeWeapon = 0;
+            else if (changeWeapon < 0)
+                changeWeapon = 4;
+        }
+    }
     private void SprintInput(bool ison)
     {
         sprint = ison;
@@ -65,8 +110,6 @@ public class CharacterInput : MonoBehaviour
     {
         move = movedir;
     }
-
-
     private void OnApplicationFocus(bool focus)
     {
         SetCursorState(isCursorLock);

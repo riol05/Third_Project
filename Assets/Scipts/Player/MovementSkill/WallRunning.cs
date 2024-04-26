@@ -56,11 +56,9 @@ public class WallRunning : MonoBehaviour
         }
         else
         {
-            print("stop now");
+            print("stop WallRunningNow");
         }
-    }
-    private void FixedUpdate()
-    {
+
         if (isWallRunning)
             WallRunningMove();
     }
@@ -84,8 +82,8 @@ public class WallRunning : MonoBehaviour
 
                 if (wallRunningTime <= 0 && isWallRunning)
                 {
-                    wallRunningTime = wallRunningTimeCD;
                     exitingWall = true;
+                    wallRunningTime = wallRunningTimeCD;
                 }
                 if (inputC.jump)
                     WallJump();
@@ -97,10 +95,9 @@ public class WallRunning : MonoBehaviour
                 StopwallRunning();
             if (exitWallTimer > 0)
                 exitWallTimer -= Time.deltaTime;
-            if (exitWallTimer <= 0 && isWallRunning)
+            if (exitWallTimer <= 0)
                 exitWallTimer = exitWallTimerCD;
         }
-
     }
     private void WallJump()
     {
@@ -110,7 +107,8 @@ public class WallRunning : MonoBehaviour
         Vector3 wallNormal = wallRight ? rightHit.normal : leftHit.normal;
         Vector3 WallJumpForce = transform.up * jumpPower + wallNormal * wallSideForce;
         cm.rb.velocity = new Vector3(cm.rb.velocity.x,0, cm.rb.velocity.z);
-       // cm.rb.AddForce(WallJumpForce,ForceMode.Force);
+        cm.rb.AddForce(WallJumpForce,ForceMode.Force);
+        
     }
     private void StartWallRunning()
     { 
@@ -135,6 +133,8 @@ public class WallRunning : MonoBehaviour
 
         if (!(wallRight && inputC.move.x < 0) && !(wallLeft && inputC.move.x > 0))
             cm.rb.AddForce(-wallNormal * 100 ,ForceMode.Force);
+            
+        cm.rb.AddForce(transform.up * 10f,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
     }
     private void StopwallRunning()
     {
