@@ -5,19 +5,26 @@ using UnityEngine;
 
 public class InventoryWindow : MonoBehaviour
 {
-    public Slot[] slots;
-
+    private Slot[] slots;
     public GameObject slotParent;
-
     private List<Item> items;
 
-    public int TotalSlotCount = 10;
+
+    private int slotCnt;
+    public int SlotCnt
+    {
+        get => slotCnt;
+        set { 
+                slotCnt = value;
+            }
+    }
     public GameObject InventorybaseObject;
 
     public static bool inventoryActivated = false;
 
     private void Start()
     {
+        slotCnt = 16;
         slots = slotParent.GetComponentsInChildren<Slot>();
     }
     private void OnValidate()
@@ -26,7 +33,7 @@ public class InventoryWindow : MonoBehaviour
     }
     public void GetItem(Item item)
     {
-        if(slots.Length >= TotalSlotCount)
+        if(slots.Length >= SlotCnt)
         {
             ThrowItem(item);
             UIManager.instance.alert.Alert("æ∆¿Ã≈€¿Ã ≤À√°Ω¿¥œ¥Ÿ.");

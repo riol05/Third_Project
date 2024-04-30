@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
+    public static Inventory Instance;
     [SerializeField]
     InventoryWindow PotionWindow;
 
@@ -12,6 +13,11 @@ public class Inventory : MonoBehaviour
     InventoryWindow IngradientWindow;
     bool ison;
     public static bool inventoryActivated = false;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
     public void CheckTypeForGetItem(Item item)
     {
         if(item.Type == ItemType.Potion)
