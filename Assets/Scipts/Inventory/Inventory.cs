@@ -5,34 +5,53 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    public static Inventory Instance;
-    [SerializeField]
-    InventoryWindow PotionWindow;
+    public static Inventory instance;
 
     [SerializeField]
+    private GameObject InventorybaseObject;
+    [SerializeField]
+    InventoryWindow PotionWindow;
+    [SerializeField]
     InventoryWindow IngradientWindow;
-    bool ison;
+    [SerializeField]
+    InventoryWindow EquipmentWindow;
+
+    bool potionOn;
     public static bool inventoryActivated = false;
 
     private void Awake()
     {
-        Instance = this;
+        instance = this;
     }
     public void CheckTypeForGetItem(Item item)
     {
         if(item.Type == ItemType.Potion)
         {
-            PotionWindow.GetItem(item);
+            PotionWindow.AcquireItem(item);
         }
         else if (item.Type == ItemType.Ingredient) 
         {
-            IngradientWindow.GetItem(item);
+            IngradientWindow.AcquireItem(item);
+        }
+        else if(item.Type == ItemType.Equip)
+        {
+            EquipmentWindow.AcquireItem(item);
         }
     }
 
     public void showThisWindow()
     {
-        PotionWindow.gameObject.SetActive(ison);
-        IngradientWindow.gameObject.SetActive(!ison);
+        potionOn = !potionOn;
+        PotionWindow.gameObject.SetActive(potionOn);
+        IngradientWindow.gameObject.SetActive(!potionOn);
+    }
+
+    public void OpenInventory()
+    {
+        InventorybaseObject.gameObject.SetActive(true);
+    }
+    public void CloseInventory()
+    {
+        InventorybaseObject.gameObject.SetActive(false);
     }
 }

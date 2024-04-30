@@ -10,7 +10,6 @@ public class GrapplingGun : MonoBehaviour {
     public CharacterMovement cm;
     public Transform gunTip;
     private SpringJoint joint;
-    public CharacterInput inputC;
     bool isGrappling;
     
     private float maxDistance = 100f;
@@ -25,7 +24,7 @@ public class GrapplingGun : MonoBehaviour {
     }
     void Update() 
     {
-        if (inputC.wire && !isGrappling) {
+        if (CharacterInput.instance.wire && !isGrappling) {
             StartGrapple();
         }
 
@@ -37,7 +36,7 @@ public class GrapplingGun : MonoBehaviour {
 
     void StartGrapple() 
     {
-        inputC.wire = false;
+        CharacterInput.instance.wire = false;
         isGrappling = true;
         RaycastHit hit;
         if (Physics.Raycast(camera.transform.position, camera.transform.forward, out hit, maxDistance, whatIsGrappleable))

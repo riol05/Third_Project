@@ -6,7 +6,6 @@ public class WallRunning : MonoBehaviour
 {
     private CharacterMovement cm;
     private ObjectChecker cheker;
-    private CharacterInput inputC;
 
     public bool onGizmo;
     [Header("WallCheck")]
@@ -35,7 +34,6 @@ public class WallRunning : MonoBehaviour
     {
         cm = GetComponent<CharacterMovement>();
         cheker = GetComponent<ObjectChecker>();
-        inputC = GetComponent<CharacterInput>();
     }
 
     private void OnDrawGizmos()
@@ -72,7 +70,7 @@ public class WallRunning : MonoBehaviour
     {
         if (!cm.isground)
         {
-            if ((wallRight || wallLeft) && inputC.move.y > 0)
+            if ((wallRight || wallLeft) && CharacterInput.instance.move.y > 0)
             {
                 if (!isWallRunning)
                     StartWallRunning();
@@ -85,7 +83,7 @@ public class WallRunning : MonoBehaviour
                     exitingWall = true;
                     wallRunningTime = wallRunningTimeCD;
                 }
-                if (inputC.jump)
+                if (CharacterInput.instance.jump)
                     WallJump();
             }
         }
@@ -131,7 +129,7 @@ public class WallRunning : MonoBehaviour
         
         cm.rb.AddForce(wallForward * wallRunningSpeed, ForceMode.Force);
 
-        if (!(wallRight && inputC.move.x < 0) && !(wallLeft && inputC.move.x > 0))
+        if (!(wallRight && CharacterInput.instance.move.x < 0) && !(wallLeft && CharacterInput.instance.move.x > 0))
             cm.rb.AddForce(-wallNormal * 100 ,ForceMode.Force);
             
         cm.rb.AddForce(transform.up * 10f,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자

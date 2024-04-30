@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
 
-public class Slot : MonoBehaviour
+public class Slot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
+    private Vector3 orgPos;
     [SerializeField]
     private Image image;
     private Item Item;
@@ -27,9 +30,13 @@ public class Slot : MonoBehaviour
             else
             {
                 image.color = new Color(1,1,1,0);
-        //        CountImage.SetActive(false);
+                //CountImage.SetActive(false);
             }
         }
+    }
+    private void Start()
+    {
+        orgPos = transform.position;
     }
 
     public void AddItem(Item item, int count)
@@ -37,7 +44,6 @@ public class Slot : MonoBehaviour
         item = Item;
         itemCount += count;
         image.sprite = Item.icon;
-
 
         CountImage.SetActive(true);
         CountText.text = itemCount.ToString();
@@ -49,9 +55,7 @@ public class Slot : MonoBehaviour
         CountText.text = itemCount.ToString();
 
         if(itemCount <=0)
-        {
             ClearSlot();
-        }
     }
     private void ClearSlot()
     {
@@ -62,5 +66,41 @@ public class Slot : MonoBehaviour
 
         CountText.text = "0";
         CountImage.SetActive(false);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if(eventData.button == PointerEventData.InputButton.Right)
+        {
+            if (item != null)
+            {
+                if (item.Type == ItemType.Equip || item.Type == ItemType.Potion)
+                {
+                    SetSlotCount(-1);
+                    item.UseItem();
+                    return;
+                }
+                else // ±âÅ¸ÅÛ
+                    return;
+            }
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if(item != null)
+        transform.position = eventData.position;
+    }
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (item != null)
+            transform.position = eventData.position;
+    }
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        transform.position = orgPos;
+    }
+    public void OnDrop(PointerEventData eventData)
+    {
     }
 }

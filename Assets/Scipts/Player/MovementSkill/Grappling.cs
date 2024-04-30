@@ -18,8 +18,7 @@ public class Grappling : MonoBehaviour
     public float overshootYAxis;
 
     private Vector3 grapplePoint;
-
-    public CharacterInput inputC;
+    
     [Header("Cooldown")]
     public float grapplingCd = 1f;
     private float grapplingCdTimer;
@@ -31,7 +30,7 @@ public class Grappling : MonoBehaviour
     public bool isGrappling { get { return grappling; } }
     private void Update()
     {
-        if (inputC.wire) StartGrapple();
+        if (CharacterInput.instance.wire) StartGrapple();
 
         if (grapplingCdTimer > 0)
         {
@@ -42,7 +41,7 @@ public class Grappling : MonoBehaviour
     private void StartGrapple()
     {
         if (grapplingCdTimer > 0) return;
-        inputC.wire = false;
+        CharacterInput.instance.wire = false;
         grappling = true;
         pm.freeze = true;
 
@@ -61,7 +60,6 @@ public class Grappling : MonoBehaviour
 
     private void ExecuteGrapple()
     {
-
         Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1, transform.position.z);
 
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;

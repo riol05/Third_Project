@@ -23,6 +23,10 @@ public class CharacterInput : MonoBehaviour
     public bool isCursorLock = true;
     public bool cursorInputForLook = true;
 
+    public int checkDropItem;
+
+    public bool attack;
+
     private void Awake()
     {
         instance = this;
@@ -60,7 +64,23 @@ public class CharacterInput : MonoBehaviour
     public void OnChangeTime(InputValue value)
     {
         ChangeTime(value.isPressed);
+    } // ????
+
+    public void OnGetItem(InputValue Value)
+    {
+        GetItemInput();
     }
+
+    public void OnAttack(InputValue value)
+    {
+        Attack(value.isPressed);
+    }
+
+    private void Attack(bool ison)
+    {
+        attack = ison;
+    }
+
     private void ChangeTime(bool ison)
     {
         isChangeWeaponTime = ison;
@@ -69,19 +89,16 @@ public class CharacterInput : MonoBehaviour
     {
         if (isChangeWeaponTime)
         {
-
             if (f < 0)
             {
                 f = 0;
                 ++changeWeapon;
             }
-
             else if (f > 0)
             {
                 f = 0;
                 --changeWeapon;
             }
-
             if (changeWeapon > 4)
                 changeWeapon = 0;
             else if (changeWeapon < 0)
@@ -109,6 +126,11 @@ public class CharacterInput : MonoBehaviour
     private void MoveInput(Vector2 movedir)
     {
         move = movedir;
+    }
+
+    private void GetItemInput()
+    {
+        ++checkDropItem;
     }
     private void OnApplicationFocus(bool focus)
     {

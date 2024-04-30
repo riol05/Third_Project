@@ -18,7 +18,7 @@ public class Third_PersonCamera : MonoBehaviour
     private float BottomClamp = -50f; // 
     private float TopClamp = 50f;
 
-    private CharacterInput inputC;
+    private CharacterInput inutC;
     
     private const float threshHold = 0.01f;
     public bool LockCameraPosition = false;
@@ -31,7 +31,7 @@ public class Third_PersonCamera : MonoBehaviour
     }
     private void Start()
     {
-        inputC = GetComponent<CharacterInput>();
+        
         cinemachineTargetYaw = targetCinemachine.transform.rotation.eulerAngles.y;
     }
 
@@ -41,10 +41,10 @@ public class Third_PersonCamera : MonoBehaviour
     }
     public void CameraRotation()
     {
-        if(inputC.look.sqrMagnitude >= threshHold && LockCameraPosition)
+        if(CharacterInput.instance.look.sqrMagnitude >= threshHold && LockCameraPosition)
         {
-            cinemachineTargetYaw += inputC.look.x * rotateSpeed ;
-            cinemachineTargetPitch += inputC.look.y * rotateSpeed;
+            cinemachineTargetYaw += CharacterInput.instance.look.x * rotateSpeed ;
+            cinemachineTargetPitch += CharacterInput.instance.look.y * rotateSpeed;
         }
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
         cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch,BottomClamp,TopClamp);

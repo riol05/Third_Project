@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class InventoryWindow : MonoBehaviour
 {
@@ -20,56 +21,52 @@ public class InventoryWindow : MonoBehaviour
     }
     public GameObject InventorybaseObject;
 
-    public static bool inventoryActivated = false;
+    public bool inventoryActivated = false;
 
     private void Start()
     {
         slotCnt = 16;
         slots = slotParent.GetComponentsInChildren<Slot>();
     }
-    private void OnValidate()
-    {
-        
-    }
-    public void GetItem(Item item)
-    {
-        if(slots.Length >= SlotCnt)
-        {
-            ThrowItem(item);
-            UIManager.instance.alert.Alert("æ∆¿Ã≈€¿Ã ≤À√°Ω¿¥œ¥Ÿ.");
-        }
-        else
-        {
 
-        }
+    public void CheckEmptySlot(Item item)
+    {
+        ThrowItem(item);
+        UIManager.instance.alert.Alert("æ∆¿Ã≈€¿Ã ≤À√°Ω¿¥œ¥Ÿ.");
     }
     public void ThrowItem(Item item)
     {
         items.Remove(item);
+        //item.itemOnField.transform.position; // «√∑π¿ÃæÓ ¿ßƒ°∑Œ ∂≥æÓ¡¸
     }
-    public void OpenInventory()
+
+    public void AcquireItem(Item _item, int Count = 1)
     {
-        InventorybaseObject.gameObject.SetActive(true);
-    }
-    public void CloseInventory()
-    {
-        InventorybaseObject.gameObject.SetActive(false);
-    }
-    public void AcquireItem(Item item, int Count)
-    {
-        for(int i = 0; i < slots.Length; i++)
+        if (slots.Length >= slotCnt)
         {
-            if (slots[i].item == item)
+            CheckEmptySlot(_item);
+            return;
+        }
+        if (ItemType.Equip != _item.Type)
+        {
+            for (int i = 0; i < slots.Length; i++)
             {
-                slots[i].SetSlotCount(Count);
-                return;
+                if (slots[i].item != null)
+                {
+                    if (slots[i].item == _item)
+                    {
+                        slots[i].SetSlotCount(Count);
+                        return;
+                    }
+                }
             }
         }
         for(int i = 0;i < slots.Length; i++) 
         {
             if (slots[i].item == null)
             {
-                slots[i].SetSlotCount(0);
+                slots[i].AddItem(_item,Count);
+                return;
             }
         }
     }

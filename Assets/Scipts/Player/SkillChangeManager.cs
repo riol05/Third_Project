@@ -7,9 +7,11 @@ public class SkillChangeManager : MonoBehaviour
     private int weaponNum;
 
     public bool isOn;
-    public CharacterInput InputC;
 
-    private List<ISkillAble> skill;
+    private List<ISkillAble> AllSkill;
+
+    [SerializeField]
+    private List<GameObject> SkillQuickSlot;
 
     private void Awake()
     {
@@ -19,7 +21,7 @@ public class SkillChangeManager : MonoBehaviour
     {
         if (isOn)
         {
-            SelectWeapon(InputC.changeWeapon);
+            SelectWeapon(CharacterInput.instance.changeWeapon);
         }
     }
     private void SelectWeapon(int i)
@@ -35,6 +37,10 @@ public class SkillChangeManager : MonoBehaviour
     private void UsethisWeapon(int i)
     {
         weaponNum = i;
+
+    }
+    private void SetSkillQuickSlot()
+    {
 
     }
 }

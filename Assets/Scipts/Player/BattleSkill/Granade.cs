@@ -5,15 +5,6 @@ using UnityEngine;
 public class Granade : MonoBehaviour, ISkillAble
 {
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
     public void Damage()
     {
         throw new System.NotImplementedException();

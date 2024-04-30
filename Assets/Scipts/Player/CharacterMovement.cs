@@ -15,7 +15,9 @@ public enum StateP
 
 }
 public class CharacterMovement : MonoBehaviour
-{
+{ 
+    public bool attackAble; // 공격 관련
+
     [SerializeField]
     private CinemachineVirtualCamera mainCamera;
     [HideInInspector]
@@ -28,7 +30,7 @@ public class CharacterMovement : MonoBehaviour
     public Rigidbody rb;
 
     private Animator ani;
-    private CharacterInput inputC;
+    
 
 
     #region 속도 관련, 방향 회전 관련
@@ -75,7 +77,7 @@ public class CharacterMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         hasAni = GetComponent<Animator>();
         //controller = GetComponent<CharacterController>();
-        inputC = GetComponent<CharacterInput>();
+        
         checkGround = GetComponent<GroundChecker>();
         checkObject = GetComponent<ObjectChecker>();
         wall = GetComponent<WallRunning>();
@@ -105,6 +107,8 @@ public class CharacterMovement : MonoBehaviour
         else
             rb.drag = 0f;
     }
+
+
     private void AnimationString()
     {
         animWalkString = "Walk";
@@ -116,9 +120,9 @@ public class CharacterMovement : MonoBehaviour
 
     private void Move()
     {
-        Vector3 inputDir = new Vector3(inputC.move.x, 0, inputC.move.y).normalized;
+        Vector3 inputDir = new Vector3(CharacterInput.instance.move.x, 0, CharacterInput.instance.move.y).normalized;
         targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
-        if (inputC.move != Vector2.zero)
+        if (CharacterInput.instance.move != Vector2.zero)
         {
             float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0f, rotation, 0f);
@@ -127,9 +131,9 @@ public class CharacterMovement : MonoBehaviour
 
         if (activeGrapple) return; // grapple 관련
 
-        float targetSpeed = inputC.sprint ? sprintSpeed : moveSpeed;
-        if (inputC.move == Vector2.zero) targetSpeed = 0f;
-        float inputMagnitude = inputC.analogMovement ? inputC.move.magnitude : 1f;
+        float targetSpeed = CharacterInput.instance.sprint ? sprintSpeed : moveSpeed;
+        if (CharacterInput.instance.move == Vector2.zero) targetSpeed = 0f;
+        float inputMagnitude = CharacterInput.instance.analogMovement ? CharacterInput.instance.move.magnitude : 1f;
         speed = targetSpeed;
 
         //캐릭터 움직임이 이상하면 Look 메서드에 들어갈 코드를 이쪽으로
@@ -143,7 +147,7 @@ public class CharacterMovement : MonoBehaviour
             ani.SetFloat(animRunString, inputMagnitude);
         }
         // 경사 체크, 속도 관련
-        if (inputC.move == Vector2.zero && (isGround || wall.CheckWall()))
+        if (CharacterInput.instance.move == Vector2.zero && (isGround || wall.CheckWall()))
         {
             print("stop");
             rb.velocity = Vector3.zero;
@@ -176,7 +180,7 @@ public class CharacterMovement : MonoBehaviour
                 ani.SetBool(animFreeFallString, false);
             }
             
-            if(inputC.jump && jumpTimeOutDelta <= 0f)
+            if(CharacterInput.instance.jump && jumpTimeOutDelta <= 0f)
             {
                 rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
                 if(hasAni)
@@ -185,7 +189,7 @@ public class CharacterMovement : MonoBehaviour
             if (jumpTimeOutDelta >= 0f)
             {
                 jumpTimeOutDelta -= Time.deltaTime;
-                inputC.jump = false;
+                CharacterInput.instance.jump = false;
             }
         }
         else
