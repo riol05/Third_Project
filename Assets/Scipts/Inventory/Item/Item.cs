@@ -13,6 +13,8 @@ public enum ItemType
 [CreateAssetMenu(menuName ="ScriptableObject/Item", fileName = "Item")]
 public class Item : ScriptableObject
 {
+    public int itemID;
+
     public ItemType Type;
 
     public string itemName;
@@ -23,7 +25,7 @@ public class Item : ScriptableObject
     public int buyPrice;
     public int sellPrice;
 
-    public GameObject itemOnField;// 맵상에서 쓸 아이템 프리팹
+    public DropItem itemOnField;// 맵상에서 쓸 아이템 프리팹
     public void UseItem()
     {
         if(Type == ItemType.Equip)

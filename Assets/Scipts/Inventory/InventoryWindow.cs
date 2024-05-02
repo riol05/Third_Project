@@ -20,13 +20,11 @@ public class InventoryWindow : MonoBehaviour
             }
     }
     public GameObject InventorybaseObject;
-
-    public bool inventoryActivated = false;
-
     private void Start()
     {
         slotCnt = 16;
         slots = slotParent.GetComponentsInChildren<Slot>();
+        slotParent.SetActive(false);
     }
 
     public void CheckEmptySlot(Item item)

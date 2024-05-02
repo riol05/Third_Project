@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerInteractInput : MonoBehaviour, IInteractable
+public class PlayerInteractInput : MonoBehaviour
 {
     private CharacterMovement playerMove;
-    bool canPickUp = true;
     public LayerMask ItemMask;
 
     private void Awake()
@@ -23,23 +22,32 @@ public class PlayerInteractInput : MonoBehaviour, IInteractable
             }
         }
     }
-    private void PickUpItem() // e 키에 넣을예정 Input system은 bool 변수가 아닌 int를 사용해서 int가 올라간만큼 아이템 획득
-    {
-        RaycastHit hit;
-        if (canPickUp)
-        {
-            if (Physics.SphereCast(transform.position, 3f, Vector3.down, out hit, 0f, ItemMask))
-            {
-                Inventory.instance.CheckTypeForGetItem(hit.transform.GetComponent<DropItem>().ItemSO);
-                Destroy(hit.transform); // TODO : 오브젝트 풀링 사용
-            }
-        }
-    }
 
-    public void Interact()
-    {
-
-    }
+    //public void Interact()
+    //{
+    //    RaycastHit[] InteractThing = Physics.SphereCastAll(transform.position, 3f, Vector3.zero);
+    //    if (InteractThing != null)
+    //    {
+    //        foreach (RaycastHit cast in InteractThing)
+    //        {
+    //            if (cast.transform.GetComponent<DropItem>())
+    //            {
+    //                // DropItem UI 생성 함수
+    //                // cast.transform.Getcomponent<DropItem(). ui생성()
+    //                return;
+    //            }
+    //            //if(cast.transform.GetComponent<NPC>()) // NPC 일경우
+    //            //{
+    //            //    NPC 접근 UI 생성
+    //            //    return;
+    //            //}
+    //        }
+    //    }
+    //    else
+    //    {
+    //        return;
+    //    }
+    //} // 상호작용 EX
 
     public void Attack()
     {

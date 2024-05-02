@@ -8,7 +8,11 @@ using UnityEngine.InputSystem;
 
 public class CharacterInput : MonoBehaviour
 {
-       
+    public bool freeze;
+
+    public bool inventoryOn;
+    public bool equipmentOn;
+
     public static CharacterInput instance;
     public Vector2 look;
     public Vector2 move;
@@ -16,6 +20,7 @@ public class CharacterInput : MonoBehaviour
     public bool jump;
     public bool wire;
     public bool analogMovement;
+
 
     public bool isChangeWeaponTime;
     public int changeWeapon;
@@ -31,49 +36,58 @@ public class CharacterInput : MonoBehaviour
     {
         instance = this;
     }
+    public void OnEquipment(InputValue value) => EquipInput(value.isPressed);
+    private void EquipInput(bool ison) => equipmentOn = ison;
+    public void OnInventory(InputValue value) => InvenInput(value.isPressed);
+    private void InvenInput(bool ison) => inventoryOn = ison;
+
     public void OnMove(InputValue value)
     {
+        if(!freeze)
         MoveInput(value.Get<Vector2>());
     }
     public void OnLook(InputValue value)
     {
-        if (isCursorLock)
+        if (!freeze)
         {
-            LookInput(value.Get<Vector2>());
+            if (isCursorLock)
+               LookInput(value.Get<Vector2>());
         }
     }
     public void OnSkillChange(InputValue value)
     {
         var ScrollValue = value.Get<float>();
+        if (!freeze)
+            ScrollInput(ScrollValue);
+        ChangeTime(value.isPressed);
 
-        ScrollInput(ScrollValue);
     }
     public void OnJump(InputValue value)
     {
-        JumpInput(value.isPressed);
+        if (!freeze)
+            JumpInput(value.isPressed);
     }
     public void OnSprint(InputValue value)
     {
-        SprintInput(value.isPressed);
+        if (!freeze)
+            SprintInput(value.isPressed);
     }
     public void OnWire(InputValue value)
     {
-        WireInput(value.isPressed);
+        if (!freeze)
+            WireInput(value.isPressed);
     }
 
-    public void OnChangeTime(InputValue value)
+    public void OnGetItem(InputValue Value) // inputsystem에 키 지정
     {
-        ChangeTime(value.isPressed);
-    } // ????
-
-    public void OnGetItem(InputValue Value)
-    {
-        GetItemInput();
+        if (!freeze)
+            GetItemInput();
     }
 
     public void OnAttack(InputValue value)
     {
-        Attack(value.isPressed);
+        if (!freeze)
+            Attack(value.isPressed);
     }
 
     private void Attack(bool ison)
@@ -83,12 +97,13 @@ public class CharacterInput : MonoBehaviour
 
     private void ChangeTime(bool ison)
     {
-        isChangeWeaponTime = ison;
+        
     }
     private void ScrollInput(float f)
     {
-        if (isChangeWeaponTime)
+        if (isChangeWeaponTime)// 이건 스킬 변경키를 어떻게 하냐에 따라 바꾸는걸로
         {
+            isChangeWeaponTime = false;
             if (f < 0)
             {
                 f = 0;
@@ -99,10 +114,10 @@ public class CharacterInput : MonoBehaviour
                 f = 0;
                 --changeWeapon;
             }
-            if (changeWeapon > 4)
+            if (changeWeapon > 3)
                 changeWeapon = 0;
             else if (changeWeapon < 0)
-                changeWeapon = 4;
+                changeWeapon = 2;
         }
     }
     private void SprintInput(bool ison)

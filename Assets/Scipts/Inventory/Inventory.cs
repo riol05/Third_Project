@@ -16,12 +16,17 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     InventoryWindow EquipmentWindow;
 
-    bool potionOn;
-    public static bool inventoryActivated = false;
+    public bool inventoryActivate; // 인벤토리가 켜져 있을때는 건들지 말자
+    private bool whichInventoryActivated = false;
 
     private void Awake()
     {
         instance = this;
+    }
+
+    private void Update()
+    {
+        if(CharacterInput.instance.)
     }
     public void CheckTypeForGetItem(Item item)
     {
@@ -38,12 +43,10 @@ public class Inventory : MonoBehaviour
             EquipmentWindow.AcquireItem(item);
         }
     }
-
-    public void showThisWindow()
+    public void ShowWindow()
     {
-        potionOn = !potionOn;
-        PotionWindow.gameObject.SetActive(potionOn);
-        IngradientWindow.gameObject.SetActive(!potionOn);
+        PotionWindow.slotParent.SetActive(whichInventoryActivated);
+        IngradientWindow.slotParent.SetActive(!whichInventoryActivated);
     }
 
     public void OpenInventory()

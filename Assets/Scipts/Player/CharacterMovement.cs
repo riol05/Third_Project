@@ -7,12 +7,12 @@ using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements;
 using UnityEngine.Windows;
 
-public enum StateP
+public enum StatePlayer
 {
+    None,
     Freeze,
-    Move,
-    Air
-
+    MoveFalse,
+    SkillFalse
 }
 public class CharacterMovement : MonoBehaviour
 { 
@@ -30,8 +30,8 @@ public class CharacterMovement : MonoBehaviour
     public Rigidbody rb;
 
     private Animator ani;
-    
 
+    private StatePlayer curState;
 
     #region 속도 관련, 방향 회전 관련
     private float speed;
@@ -76,8 +76,6 @@ public class CharacterMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         hasAni = GetComponent<Animator>();
-        //controller = GetComponent<CharacterController>();
-        
         checkGround = GetComponent<GroundChecker>();
         checkObject = GetComponent<ObjectChecker>();
         wall = GetComponent<WallRunning>();
@@ -86,6 +84,7 @@ public class CharacterMovement : MonoBehaviour
 
     private void Start()
     {
+        curState = StatePlayer.None;
         jumpTimeOutDelta = jumpTimeOut;
         fallTimeDelta = fallTimeOut;
         sprintSpeed = moveSpeed * 2f; // 달리기 속도 설정
@@ -93,6 +92,8 @@ public class CharacterMovement : MonoBehaviour
     }
     private void Update()
     {
+        if (CharacterInput.instance.freeze) return;
+
         isGround =checkGround.GroundedCheck();
         Move();
         OnJump();
@@ -121,12 +122,18 @@ public class CharacterMovement : MonoBehaviour
     private void Move()
     {
         Vector3 inputDir = new Vector3(CharacterInput.instance.move.x, 0, CharacterInput.instance.move.y).normalized;
+        
         targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
-        if (CharacterInput.instance.move != Vector2.zero)
+        
+        //if (CharacterInput.instance.move != Vector2.zero) // TODO : 가만히 있을때도 캐릭터 시점 변경을 위해 고개만 돌리자
+        //{
+        float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
+        transform.rotation = Quaternion.Euler(0f, rotation, 0f);
+        if(CharacterInput.instance.look.x == 0)
         {
-            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, rotation, 0f);
+            //왼쪽 회전이나 오른쪽 회전 애니메이션
         }
+        //}
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward; // 
 
         if (activeGrapple) return; // grapple 관련
@@ -134,6 +141,10 @@ public class CharacterMovement : MonoBehaviour
         float targetSpeed = CharacterInput.instance.sprint ? sprintSpeed : moveSpeed;
         if (CharacterInput.instance.move == Vector2.zero) targetSpeed = 0f;
         float inputMagnitude = CharacterInput.instance.analogMovement ? CharacterInput.instance.move.magnitude : 1f;
+        if(CharacterInput.instance.move.y < 0)
+        {
+            targetSpeed /= 2;
+        }
         speed = targetSpeed;
 
         //캐릭터 움직임이 이상하면 Look 메서드에 들어갈 코드를 이쪽으로
@@ -144,6 +155,7 @@ public class CharacterMovement : MonoBehaviour
         if (hasAni)
         {
             ani.SetFloat(animWalkString, aniBlend);
+            if(CharacterInput.instance.move.y > 0 && CharacterInput.instance.sprint)
             ani.SetFloat(animRunString, inputMagnitude);
         }
         // 경사 체크, 속도 관련

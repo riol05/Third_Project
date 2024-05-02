@@ -10,8 +10,13 @@ public class SkillChangeManager : MonoBehaviour
 
     private List<ISkillAble> AllSkill;
 
+    private ISkillAble curSkill;
+
     [SerializeField]
-    private List<GameObject> SkillQuickSlot;
+    private List<GameObject> quickSlot;
+
+    [SerializeField]
+    private GameObject slotParent;
 
     private void Awake()
     {
