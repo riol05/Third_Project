@@ -13,13 +13,14 @@ public class Third_PersonCamera : MonoBehaviour
     public GameObject targetCinemachine;
     public CinemachineVirtualCamera vc;
     
-    private float cinemachineTargetYaw;
+
+    [HideInInspector]
+    public float cinemachineTargetYaw;
+
     private float cinemachineTargetPitch;
     private float BottomClamp = -50f; // 
     private float TopClamp = 50f;
 
-    private CharacterInput inutC;
-    
     private const float threshHold = 0.01f;
     public bool LockCameraPosition = false;
     public float CameraAngleOverride;
@@ -68,7 +69,7 @@ public class Third_PersonCamera : MonoBehaviour
         //Invoke(nameof(ChangeFOV),0.2f);
     }
 
-    private void ChangeFOV()
+    public void GetOriginalFOV()
     {
         vc.m_Lens.FieldOfView = originalF;
     }

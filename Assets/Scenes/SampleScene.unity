@@ -8054,6 +8054,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 784351305}
   m_CullTransparentMesh: 1
+--- !u!1 &788950299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 788950300}
+  m_Layer: 8
+  m_Name: VirtualTarget (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &788950300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788950299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.1, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1754095872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &792650296
 GameObject:
   m_ObjectHideFlags: 0
@@ -17146,6 +17177,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1650415218}
+  - {fileID: 788950300}
   - {fileID: 1888782668}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 11.45, z: 0}
@@ -17163,6 +17195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetCinemachine: {fileID: 1650415217}
   vc: {fileID: 1457779480}
+  cinemachineTargetYaw: 0
   LockCameraPosition: 1
   CameraAngleOverride: 0.01
   rotateSpeed: 0.02
@@ -17280,11 +17313,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onGizmo: 1
   WallRadius: 0.33
-  wallRayDistance: 0.5
+  wallRayDistance: 0.7
   WallLayer:
     serializedVersion: 2
     m_Bits: 128
-  wallRunningSpeed: 50
+  wallRunningSpeed: 200
   jumpPower: 2
   wallSideForce: 2
   isWallRunning: 0

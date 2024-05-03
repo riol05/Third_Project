@@ -23,10 +23,10 @@ public class WallRunning : MonoBehaviour
     public float wallSideForce;
 
     private float wallRunningTime;
-    private float wallRunningTimeCD = 3f;
+    private float wallRunningTimeCD = 4f;
 
     private float exitWallTimer;
-    private float exitWallTimerCD = 3f;
+    private float exitWallTimerCD = 0.2f;
 
     public bool isWallRunning;
     private bool exitingWall;
@@ -96,6 +96,10 @@ public class WallRunning : MonoBehaviour
             if (exitWallTimer <= 0)
                 exitWallTimer = exitWallTimerCD;
         }
+        else
+        {
+            StopwallRunning();
+        }
     }
     private void WallJump()
     {
@@ -115,8 +119,8 @@ public class WallRunning : MonoBehaviour
         wallRunningTime = wallRunningTimeCD;
         cm.rb.velocity = new Vector3 (cm.rb.velocity.x,0,cm.rb.velocity.z);
         Third_PersonCamera.instance.DoFov(40);
-        //if (wallLeft) Third_PersonCamera.instance.targetCinemachine.transform.DOLocalRotate(new Vector3(0,0, -5), 0.5f);
-        //if (wallRight) Third_PersonCamera.instance.targetCinemachine.transform.DOLocalRotate(new Vector3(0, 0, 5), 0.5f);
+        if (wallLeft) Third_PersonCamera.instance.targetCinemachine.transform.DOLocalRotate(new Vector3(0,0, -5), 0.5f);
+        if (wallRight) Third_PersonCamera.instance.targetCinemachine.transform.DOLocalRotate(new Vector3(0, 0, 5), 0.5f);
         // TODO : 애니메이션이 불안정하면 doTween 사용
     }
 
@@ -130,9 +134,9 @@ public class WallRunning : MonoBehaviour
         cm.rb.AddForce(wallForward * wallRunningSpeed, ForceMode.Force);
 
         if (!(wallRight && CharacterInput.instance.move.x < 0) && !(wallLeft && CharacterInput.instance.move.x > 0))
-            cm.rb.AddForce(-wallNormal * 100 ,ForceMode.Force);
+            cm.rb.AddForce(-wallNormal * (wallRunningSpeed/2) ,ForceMode.Force);
             
-        cm.rb.AddForce(transform.up * 10f,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
+        cm.rb.AddForce(transform.up * 20f ,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
     }
     private void StopwallRunning()
     {

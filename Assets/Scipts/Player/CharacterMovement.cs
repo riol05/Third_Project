@@ -121,29 +121,27 @@ public class CharacterMovement : MonoBehaviour
 
     private void Move()
     {
-        Vector3 inputDir = new Vector3(CharacterInput.instance.move.x, 0, CharacterInput.instance.move.y).normalized;
-        
-        targetRotation = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + Third_PersonCamera.instance.vc.transform.eulerAngles.y;
-        
-        //if (CharacterInput.instance.move != Vector2.zero) // TODO : 가만히 있을때도 캐릭터 시점 변경을 위해 고개만 돌리자
-        //{
+         targetRotation = /*Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg + */ Third_PersonCamera.instance.vc.transform.eulerAngles.y;
+
         float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, rotationSmoothTime);
         transform.rotation = Quaternion.Euler(0f, rotation, 0f);
-        if(CharacterInput.instance.look.x == 0)
-        {
-            //왼쪽 회전이나 오른쪽 회전 애니메이션
-        }
-        //}
+        
+        Vector3 inputDir = transform.forward * CharacterInput.instance.move.y +transform.right * CharacterInput.instance.move.x;
         Vector3 targetDirection = Quaternion.Euler(0f, targetRotation, 0f) * Vector3.forward; // 
 
         if (activeGrapple) return; // grapple 관련
+
+        if(CharacterInput.instance.look.x != 0)
+        {
+            //왼쪽 회전이나 오른쪽 회전 애니메이션
+        }
 
         float targetSpeed = CharacterInput.instance.sprint ? sprintSpeed : moveSpeed;
         if (CharacterInput.instance.move == Vector2.zero) targetSpeed = 0f;
         float inputMagnitude = CharacterInput.instance.analogMovement ? CharacterInput.instance.move.magnitude : 1f;
         if(CharacterInput.instance.move.y < 0)
         {
-            targetSpeed /= 2;
+            targetSpeed /= 1.2f;
         }
         speed = targetSpeed;
 
@@ -166,16 +164,13 @@ public class CharacterMovement : MonoBehaviour
         }
         else if (checkObject.SlopeCheck() || isGround )
         {
-            float accelSpeed = 2f;
-            if (checkObject.SlopeCheck()) accelSpeed = 1.5f; // 경사면에서의 가속 조정
-
-            rb.AddForce(targetDirection * speed * accelSpeed, ForceMode.Force);
+            float accelSpeed = checkObject.SlopeCheck() ? 1.5f : 2f;
+            rb.AddForce(inputDir.normalized * speed * accelSpeed, ForceMode.Force);
         }
-        //else if(!isGround && !wall.CheckWall())
-        //{
-        //    Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
-        //    rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
-        //}
+        else if(!isGround && !wall.CheckWall())
+        {
+            rb.AddForce(inputDir.normalized * speed * 1.7f, ForceMode.Force);
+        }
         print(speed);
     }
     
