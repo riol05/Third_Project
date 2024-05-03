@@ -26,7 +26,12 @@ public class Inventory : MonoBehaviour
 
     private void Update()
     {
-        if(CharacterInput.instance.)
+        if(CharacterInput.instance.inventoryOn)
+        {
+            inventoryActivate = !inventoryActivate;
+            CharacterInput.instance.inventoryOn = false;
+            InventorybaseObject.SetActive(inventoryActivate);
+        }
     }
     public void CheckTypeForGetItem(Item item)
     {
@@ -43,10 +48,11 @@ public class Inventory : MonoBehaviour
             EquipmentWindow.AcquireItem(item);
         }
     }
-    public void ShowWindow()
+    public void ShowWindowButton()
     {
-        PotionWindow.slotParent.SetActive(whichInventoryActivated);
-        IngradientWindow.slotParent.SetActive(!whichInventoryActivated);
+        whichInventoryActivated = !whichInventoryActivated;
+        PotionWindow.Window.SetActive(whichInventoryActivated);
+        IngradientWindow.Window.SetActive(!whichInventoryActivated);
     }
 
     public void OpenInventory()

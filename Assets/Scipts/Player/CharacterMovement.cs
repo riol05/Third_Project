@@ -164,18 +164,18 @@ public class CharacterMovement : MonoBehaviour
             print("stop");
             rb.velocity = Vector3.zero;
         }
-        else if (isGround || checkObject.SlopeCheck())
+        else if (checkObject.SlopeCheck() || isGround )
         {
             float accelSpeed = 2f;
             if (checkObject.SlopeCheck()) accelSpeed = 1.5f; // 경사면에서의 가속 조정
 
             rb.AddForce(targetDirection * speed * accelSpeed, ForceMode.Force);
         }
-        else if(!isGround && !wall.CheckWall())
-        {
-            Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
-            rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
-        }
+        //else if(!isGround && !wall.CheckWall())
+        //{
+        //    Vector3 horizontalDirection = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+        //    rb.AddForce(horizontalDirection * speed * 1.7f, ForceMode.Force);
+        //}
         print(speed);
     }
     

@@ -7,6 +7,7 @@ using static UnityEditor.Progress;
 public class InventoryWindow : MonoBehaviour
 {
     private Slot[] slots;
+    public GameObject Window;
     public GameObject slotParent;
     private List<Item> items;
 

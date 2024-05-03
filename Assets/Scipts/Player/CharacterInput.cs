@@ -59,8 +59,6 @@ public class CharacterInput : MonoBehaviour
         var ScrollValue = value.Get<float>();
         if (!freeze)
             ScrollInput(ScrollValue);
-        ChangeTime(value.isPressed);
-
     }
     public void OnJump(InputValue value)
     {
@@ -78,7 +76,7 @@ public class CharacterInput : MonoBehaviour
             WireInput(value.isPressed);
     }
 
-    public void OnGetItem(InputValue Value) // inputsystem에 키 지정
+    public void OnGetItem(InputValue Value) // inputsystem에 키 지정 z키
     {
         if (!freeze)
             GetItemInput();
@@ -95,9 +93,9 @@ public class CharacterInput : MonoBehaviour
         attack = ison;
     }
 
-    private void ChangeTime(bool ison)
+    private void ChangeTime(bool ison) // 지울지 말지 정해두자
     {
-        
+        isChangeWeaponTime = ison; // 왜필요?
     }
     private void ScrollInput(float f)
     {
