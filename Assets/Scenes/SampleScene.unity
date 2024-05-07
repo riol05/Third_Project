@@ -17217,9 +17217,9 @@ MonoBehaviour:
   checkObject: {fileID: 0}
   wall: {fileID: 0}
   rb: {fileID: 0}
-  moveSpeed: 2
-  rotationVelocity: 1
-  rotationSmoothTime: 0.2
+  moveSpeed: 4
+  rotationVelocity: 0.7
+  rotationSmoothTime: 0.1
   activeGrapple: 0
   grap: {fileID: 1650415220}
   freeze: 0
@@ -17313,11 +17313,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onGizmo: 1
   WallRadius: 0.33
-  wallRayDistance: 0.7
+  wallRayDistance: 0.34
   WallLayer:
     serializedVersion: 2
     m_Bits: 128
-  wallRunningSpeed: 200
+  wallRunningSpeed: 10
   jumpPower: 2
   wallSideForce: 2
   isWallRunning: 0

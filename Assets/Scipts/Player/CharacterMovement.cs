@@ -58,7 +58,7 @@ public class CharacterMovement : MonoBehaviour
     private float jumpTimeOutDelta;
     private float jumpTimeOut = 0.15f;
 
-    private float jumpHeight = 2f;
+    private float jumpHeight = 5f;
 
     #endregion
 
@@ -157,7 +157,7 @@ public class CharacterMovement : MonoBehaviour
             ani.SetFloat(animRunString, inputMagnitude);
         }
         // 경사 체크, 속도 관련
-        if (CharacterInput.instance.move == Vector2.zero && (isGround || wall.CheckWall()))
+        if (CharacterInput.instance.move == Vector2.zero && isGround)
         {
             print("stop");
             rb.velocity = Vector3.zero;
@@ -189,8 +189,10 @@ public class CharacterMovement : MonoBehaviour
             
             if(CharacterInput.instance.jump && jumpTimeOutDelta <= 0f)
             {
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
                 rb.AddForce(transform.up * jumpHeight, ForceMode.Impulse);
-                if(hasAni)
+                if (hasAni)
                 ani.SetBool(animJumpString, true); // 점프 애니메이션
             }
             if (jumpTimeOutDelta >= 0f)

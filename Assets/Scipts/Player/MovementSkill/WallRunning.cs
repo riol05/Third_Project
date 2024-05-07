@@ -68,38 +68,40 @@ public class WallRunning : MonoBehaviour
 
     private void CheckStateOnWall()
     {
-        if (!cm.isground)
+        if ((wallRight || wallLeft) && CharacterInput.instance.move.y > 0 && !cm.isground && !exitingWall)
         {
-            if ((wallRight || wallLeft) && CharacterInput.instance.move.y > 0)
+            if (!isWallRunning)
+                StartWallRunning();
+
+            if (wallRunningTime > 0)
+                wallRunningTime -= Time.deltaTime;
+
+            if (wallRunningTime <= 0 && isWallRunning)
             {
-                if (!isWallRunning)
-                    StartWallRunning();
-
-                if (wallRunningTime > 0)
-                    wallRunningTime -= Time.deltaTime;
-
-                if (wallRunningTime <= 0 && isWallRunning)
-                {
-                    exitingWall = true;
-                    wallRunningTime = wallRunningTimeCD;
-                }
-                if (CharacterInput.instance.jump)
-                    WallJump();
+                exitingWall = true;
+                wallRunningTime = wallRunningTimeCD;
             }
+            if (CharacterInput.instance.jump)
+                WallJump();
         }
-        if (exitingWall)
+        else if (exitingWall)
         {
             if (isWallRunning)
                 StopwallRunning();
             if (exitWallTimer > 0)
                 exitWallTimer -= Time.deltaTime;
             if (exitWallTimer <= 0)
+            {
                 exitWallTimer = exitWallTimerCD;
+                exitingWall = false;
+            }
         }
         else
         {
             StopwallRunning();
         }
+
+
     }
     private void WallJump()
     {
