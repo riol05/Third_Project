@@ -21,6 +21,9 @@ public class Item : ScriptableObject
 
     public string description;
 
+    [SerializeField]
+    private int useValue;
+
     public Sprite icon;
     public int buyPrice;
     public int sellPrice;
@@ -37,13 +40,17 @@ public class Item : ScriptableObject
             UsePotion();
         }
     }
-    private void UsePotion()
+    private int UsePotion() // TODO :
     {
-
+        return useValue;
     }
 
     private void UseEquip()
     {
-
+        SkillManager.instance.SetSkillQuickSlot(this);
+    }
+    public void SetItemID()
+    {
+        itemOnField.itemID = itemID;
     }
 }

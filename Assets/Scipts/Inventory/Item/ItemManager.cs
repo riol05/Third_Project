@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class ItemManager : MonoBehaviour
 {
@@ -18,6 +19,6 @@ public class ItemManager : MonoBehaviour
     }
     private void GetItemList()
     {
-
+        // TODO : 아이템 리스트 받아오기
     }
 }

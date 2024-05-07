@@ -139,6 +139,8 @@ public class WallRunning : MonoBehaviour
             cm.rb.AddForce(-wallNormal * (wallRunningSpeed/2) ,ForceMode.Force);
             
         cm.rb.AddForce(transform.up * 20f ,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
+        // TODO : 느리게 날아가는데 이거일수도?? // TODO : NO.2
+        // print("WallRunning Error Code : ");
     }
     private void StopwallRunning()
     {

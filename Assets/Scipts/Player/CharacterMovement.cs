@@ -10,7 +10,6 @@ using UnityEngine.Windows;
 public enum StatePlayer
 {
     None,
-    Freeze,
     MoveFalse,
     SkillFalse
 }
@@ -131,9 +130,11 @@ public class CharacterMovement : MonoBehaviour
 
         if (activeGrapple) return; // grapple 관련
 
-        if(CharacterInput.instance.look.x != 0)
+        if(CharacterInput.instance.look.x != 0 && CharacterInput.instance.move == Vector2.zero)
         {
             //왼쪽 회전이나 오른쪽 회전 애니메이션
+            // 애니메이션 블렌드 트리 가능?
+            // TODO :
         }
 
         float targetSpeed = CharacterInput.instance.sprint ? sprintSpeed : moveSpeed;
@@ -144,8 +145,6 @@ public class CharacterMovement : MonoBehaviour
             targetSpeed /= 1.2f;
         }
         speed = targetSpeed;
-
-        //캐릭터 움직임이 이상하면 Look 메서드에 들어갈 코드를 이쪽으로
 
         aniBlend = Mathf.Lerp(aniBlend, targetSpeed, Time.deltaTime * speedChangeRate);
         if (aniBlend < 0f) aniBlend = 0f; // 애니메이션
@@ -213,6 +212,7 @@ public class CharacterMovement : MonoBehaviour
             }
         }
     }
+
 
     private bool enableMovementOnNextTouch;
     public bool activeGrapple;

@@ -22,7 +22,7 @@ public class DropItem : MonoBehaviour, IInteractable
     }
     public Item GetItemInf()
     {
-        // 아이템 매니저에게서 플레이어 
+        // 아이템 매니저에게서 플레이어
         foreach (var item in ItemManager.Instance.AllItemList)
         {
             if(itemID == item.itemID)
@@ -36,11 +36,12 @@ public class DropItem : MonoBehaviour, IInteractable
         RaycastHit hit;
     public void Interact()
     {
-        if(Physics.SphereCast(transform.position, 3f, Vector3.zero,out hit));
+        if(Physics.SphereCast(transform.position, 3f, Vector3.zero,out hit))
         {
             if(hit.transform.GetComponent<PlayerInput>())
             {
-                // 아이템 정보 ui 켜주기
+                // TODO :
+                // 아이템 정보 ui 켜주기 
                 //if(CharacterInput.instance.GetItemKey) //  e 키에 넣을예정 Input system은 bool 변수가 아닌 int를 사용해서 int가 올라간만큼 아이템 획득
                 //{
                 //    GetItemInventory();
@@ -48,9 +49,6 @@ public class DropItem : MonoBehaviour, IInteractable
             }
         }
     }
-
-    //private void PickUpItem() // 
-    // 
 
     public void GetItemInventory()
     {

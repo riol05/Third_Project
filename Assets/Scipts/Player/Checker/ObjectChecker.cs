@@ -19,8 +19,6 @@ public class ObjectChecker : MonoBehaviour
         {
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, Vector3.down * slopeCheckerOffSet);
-
-            
         }
     }
         RaycastHit hitInfo;

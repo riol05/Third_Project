@@ -19,12 +19,12 @@ public class Spring
 
     public void Reset()
     {
-        // reset values
         velocity = 0f;
         value = 0f;
     }
 
     #region Setters
+    public float Value => value;
 
     public void SetValue(float value)
     {
@@ -51,7 +51,6 @@ public class Spring
         this.velocity = velocity;
     }
 
-    public float Value => value;
 
     #endregion
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -19,6 +21,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDra
     TextMeshProUGUI CountText;
     [SerializeField]
     private GameObject CountImage;
+
     public Item item { get { return Item; }
         set
         {

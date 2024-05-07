@@ -10,13 +10,19 @@ public class Inventory : MonoBehaviour
     [SerializeField]
     private GameObject InventorybaseObject;
     [SerializeField]
+    private GameObject EquipbaseObject;
+    [SerializeField]
     InventoryWindow PotionWindow;
     [SerializeField]
     InventoryWindow IngradientWindow;
     [SerializeField]
     InventoryWindow EquipmentWindow;
 
-    public bool inventoryActivate; // 인벤토리가 켜져 있을때는 건들지 말자
+    private bool inventoryActivate = false; // 인벤토리가 켜져 있을때는 건들지 말자
+    private bool equipmentActivate = false; // 인벤토리가 켜져 있을때는 건들지 말자
+
+    public bool Activated = false;
+
     private bool whichInventoryActivated = false;
 
     private void Awake()
@@ -24,14 +30,25 @@ public class Inventory : MonoBehaviour
         instance = this;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if(CharacterInput.instance.inventoryOn)
-        {
-            inventoryActivate = !inventoryActivate;
-            CharacterInput.instance.inventoryOn = false;
-            InventorybaseObject.SetActive(inventoryActivate);
-        }
+        if(CharacterInput.instance.inventoryOn == true ||
+            CharacterInput.instance.equipmentOn == true)
+            Activated = true;
+        else
+            Activated = false;
+
+        InventoryON();
+        EquipmentON();
+    }
+
+    private void InventoryON()
+    {
+        InventorybaseObject.SetActive(CharacterInput.instance.inventoryOn);
+    }
+    private void EquipmentON()
+    {
+        EquipbaseObject.SetActive(CharacterInput.instance.equipmentOn);
     }
     public void CheckTypeForGetItem(Item item)
     {

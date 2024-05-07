@@ -9,11 +9,12 @@ using UnityEngine.InputSystem;
 public class CharacterInput : MonoBehaviour
 {
     public bool freeze;
+    
+    public static CharacterInput instance;
 
     public bool inventoryOn;
     public bool equipmentOn;
 
-    public static CharacterInput instance;
     public Vector2 look;
     public Vector2 move;
     public bool sprint;
@@ -21,9 +22,9 @@ public class CharacterInput : MonoBehaviour
     public bool wire;
     public bool analogMovement;
 
-
     public bool isChangeWeaponTime;
     public int changeWeapon;
+    public float changeCD;
 
     public bool isCursorLock = true;
     public bool cursorInputForLook = true;
@@ -93,15 +94,12 @@ public class CharacterInput : MonoBehaviour
         attack = ison;
     }
 
-    private void ChangeTime(bool ison) // 지울지 말지 정해두자
-    {
-        isChangeWeaponTime = ison; // 왜필요?
-    }
+    
     private void ScrollInput(float f)
     {
-        if (isChangeWeaponTime)// 이건 스킬 변경키를 어떻게 하냐에 따라 바꾸는걸로
+        isChangeWeaponTime = true;
+        if (Time.deltaTime > changeCD + 2f)
         {
-            isChangeWeaponTime = false;
             if (f < 0)
             {
                 f = 0;
@@ -116,6 +114,10 @@ public class CharacterInput : MonoBehaviour
                 changeWeapon = 0;
             else if (changeWeapon < 0)
                 changeWeapon = 2;
+        }
+        else
+        {
+            UIManager.instance.alert.Alert("장비 교체를 위해 잠시만 기다려주세요");
         }
     }
     private void SprintInput(bool ison)

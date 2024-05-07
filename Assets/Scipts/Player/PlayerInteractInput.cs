@@ -71,7 +71,7 @@ public class PlayerInteractInput : MonoBehaviour
                 default: break;
             }
         }
-        else                   // °øÁßÄÞº¸
+        else              // °øÁßÄÞº¸
         {
             switch (attackCombo)
             {
@@ -135,6 +135,5 @@ public class PlayerInteractInput : MonoBehaviour
             }
         }
         yield return null;
-
     }
 }

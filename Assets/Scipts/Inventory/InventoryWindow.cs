@@ -12,18 +12,10 @@ public class InventoryWindow : MonoBehaviour
     private List<Item> items;
 
 
-    private int slotCnt;
-    public int SlotCnt
-    {
-        get => slotCnt;
-        set { 
-                slotCnt = value;
-            }
-    }
+    public int slotCnt;
     public GameObject InventorybaseObject;
     private void Start()
     {
-        slotCnt = 16;
         slots = slotParent.GetComponentsInChildren<Slot>();
         slotParent.SetActive(false);
     }
@@ -38,6 +30,7 @@ public class InventoryWindow : MonoBehaviour
         items.Remove(item);
         //item.itemOnField.transform.position; // 플레이어 위치로 떨어짐
     }
+
 
     public void AcquireItem(Item _item, int Count = 1)
     {
