@@ -72,15 +72,31 @@ public class Monster : MonoBehaviour, IDamageable
     {
         while (stateMon != MonsterState.Die)
         {
-            if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
-                stateMon = MonsterState.Attack;
-
-            else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
-                stateMon = MonsterState.Chase;
-            if(stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+            if (typeMONSTER == MonsterType.Common)
             {
-                if (Physics.SphereCast(transform.position, 20f, transform.forward, out hitPlayer, playerLayer))
-                    stateMon = MonsterState.BackHome;
+                if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
+                    stateMon = MonsterState.Attack;
+                else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
+                    stateMon = MonsterState.Chase;
+                
+                if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+                {
+                    if (Physics.SphereCast(transform.position, 13f, transform.forward, out hitPlayer, playerLayer))
+                        stateMon = MonsterState.BackHome;
+                }
+            }
+            if(typeMONSTER == MonsterType.Elite)
+            {
+                if (Physics.SphereCast(transform.position, 7f, transform.forward, out hitPlayer, playerLayer)) // 사거리임
+                    stateMon = MonsterState.Attack;
+                else if (Physics.SphereCast(transform.position, 15f, transform.forward, out hitPlayer, playerLayer))
+                    stateMon = MonsterState.Chase;
+
+                if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+                {
+                    if (Physics.SphereCast(transform.position, 25f, transform.forward, out hitPlayer, playerLayer))
+                        stateMon = MonsterState.BackHome;
+                }
             }
 
             if (stateMon == MonsterState.BackHome)
