@@ -31,6 +31,8 @@ public class MonsterSpawner : MonoBehaviour
     {
         foreach(Vector3 pos in SpawnPos)
         {
+            //Vector3 pos = new Vector3(UnityEngine.Random.Range(-3, 10),0, UnityEngine.Random.Range(-3, 10));
+
             int i = UnityEngine.Random.Range(0, 3);
             if (i == 3)
             {
