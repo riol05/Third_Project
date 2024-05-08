@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -10,7 +11,7 @@ public class SkillManager : MonoBehaviour
 
     private Item[] slotSkill;
 
-    public QuickSlot CurSkill;
+    public Item CurSkill;
 
     [SerializeField]
     private QuickSlot FirstSlot;
@@ -28,6 +29,12 @@ public class SkillManager : MonoBehaviour
     {
         instance = this;
     }
+    private void Start()
+    {
+        slots[0] = FirstSlot;
+        slots[1] = SecondSlot;
+        slots[2] = ThirdSlot;
+    }
     private void Update()
     {
         if (CharacterInput.instance.isChangeWeaponTime)
@@ -38,54 +45,60 @@ public class SkillManager : MonoBehaviour
     }
     private void UsethisWeapon(int i)
     {
-        if(i == 0)
+        if (i == 0)
         {
             CurSkill = null;
             UIManager.instance.alert.Alert($"장비를 해제하였습니다.");
             return;
         }
-        else if ( i == 1)
+        else if (i == 1)
         {
-            CurSkill = FirstSlot;
+            if (FirstSlot.item == null) return;
+            CurSkill = FirstSlot.item;
         }
         else if (i == 2)
         {
-            CurSkill = SecondSlot;
+            if (SecondSlot.item == null) return;
+            CurSkill = SecondSlot.item;
         }
-        else if ( i == 3)
+        else if (i == 3)
         {
-            CurSkill = ThirdSlot;
+            if (ThirdSlot.item == null) return;
+            CurSkill = ThirdSlot.item;
         }
-        UIManager.instance.alert.Alert($"{CurSkill.item.itemName} 을 착용하였습니다.");
+        UIManager.instance.alert.Alert($"{CurSkill.itemName} 을 착용하였습니다.");
     }
-    private void GetSlotInformation()
+    private void GetSlotInformation() // 스킬을 쓸때 저장하기 위함용
     {
         int i = 0;
-        foreach (Item skill in slotSkill)
+        foreach (QuickSlot slot in slots)
         {
-            if (skill == null)
-            {
-                return;
-            }
-            slots[i].AddItem(skill);
+            if (slot.item == null)  return;
+            slotSkill[i] = slot.item;
             ++i;
         }
     }
     public void SetSkillQuickSlot(Item item)
     {
-        if(slotSkill.Length <= 2)
+        if (slots[slots.Length].item != null)
         {
-            slotSkill[slotSkill.Length - 1] = item;
+            Inventory.instance.CheckTypeForGetItem(slots[slots.Length].item);
+            for (int i = 2; i > 0; i--)
+            {
+                if (i == 0) slots[i].AddItem(item);
+                else        slots[i].AddItem(slots[i - 1].item);
+            }
         }
         else
         {
-            for (int i = 2; i > 0; i--) // TODO : 확인 한번만.. 헷갈려 no.1
+            foreach (QuickSlot slot in slots)
             {
-                slots[i].item = slots[i - 1].item;
-                
-                if(i == 0) slots[i].item = item;
+                if (slot == null)
+                {
+                    slots[slots.Length].AddItem(item);
+                    return;
+                }
             }
         }
-        GetSlotInformation();
     }
 }

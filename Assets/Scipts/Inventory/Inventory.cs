@@ -35,35 +35,27 @@ public class Inventory : MonoBehaviour
         if(CharacterInput.instance.inventoryOn == true ||
             CharacterInput.instance.equipmentOn == true)
             Activated = true;
-        else
+        else if (CharacterInput.instance.inventoryOn == false &&
+            CharacterInput.instance.equipmentOn == false)
             Activated = false;
 
+        Activated = CharacterInput.instance.freeze; // 
         InventoryON();
         EquipmentON();
     }
 
-    private void InventoryON()
-    {
-        InventorybaseObject.SetActive(CharacterInput.instance.inventoryOn);
-    }
-    private void EquipmentON()
-    {
-        EquipbaseObject.SetActive(CharacterInput.instance.equipmentOn);
-    }
+    private void InventoryON() => InventorybaseObject.SetActive(CharacterInput.instance.inventoryOn);
+    private void EquipmentON() => EquipbaseObject.SetActive(CharacterInput.instance.equipmentOn);
+    public void OpenInventory() => InventorybaseObject.gameObject.SetActive(true);
+    public void CloseInventory() => InventorybaseObject.gameObject.SetActive(false);
+
     public void CheckTypeForGetItem(Item item)
     {
-        if(item.Type == ItemType.Potion)
-        {
-            PotionWindow.AcquireItem(item);
-        }
-        else if (item.Type == ItemType.Ingredient) 
-        {
-            IngradientWindow.AcquireItem(item);
-        }
-        else if(item.Type == ItemType.Equip)
-        {
-            EquipmentWindow.AcquireItem(item);
-        }
+        if(item.Type == ItemType.Potion)  PotionWindow.AcquireItem(item);
+        
+        else if (item.Type == ItemType.Ingredient)  IngradientWindow.AcquireItem(item);
+        
+        else if(item.Type == ItemType.Equip)   EquipmentWindow.AcquireItem(item);
     }
     public void ShowWindowButton()
     {
@@ -72,12 +64,5 @@ public class Inventory : MonoBehaviour
         IngradientWindow.Window.SetActive(!whichInventoryActivated);
     }
 
-    public void OpenInventory()
-    {
-        InventorybaseObject.gameObject.SetActive(true);
-    }
-    public void CloseInventory()
-    {
-        InventorybaseObject.gameObject.SetActive(false);
-    }
+
 }

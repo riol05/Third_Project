@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class QuickSlot : MonoBehaviour, IPointerClickHandler
+public class QuickSlot : MonoBehaviour, IPointerClickHandler, IDragHandler, IEndDragHandler, IDropHandler, IBeginDragHandler
 {
     private Vector3 orgPos;
     [SerializeField]
@@ -62,5 +62,23 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler
                 }
             }
         }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (item != null)
+            transform.position = eventData.position;
+    }
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (item != null)
+            transform.position = eventData.position;
+    }
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        transform.position = orgPos;
+    }
+    public void OnDrop(PointerEventData eventData)
+    {
     }
 }

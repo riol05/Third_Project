@@ -71,23 +71,8 @@ public class PlayerInteractInput : MonoBehaviour
                 default: break;
             }
         }
-        else              // °øÁßÄÞº¸
-        {
-            switch (attackCombo)
-            {
-                case 0:
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                default: break;
-            }
-        }
+        else              // °øÁßÄÞº¸ ±¸Çö x
+        { }
     }
     public bool isAttack;
     public int attackCombo;
@@ -114,12 +99,13 @@ public class PlayerInteractInput : MonoBehaviour
         else if (attackTime <= 0)
         {
             exitAttackTime -= Time.deltaTime;
-            isAttack = false;
+            StopAttack();
         }
-        if(isAttack)
-        {
-            attackCombo = 0;
-        }
+    }
+    private void StopAttack()
+    {
+        isAttack = false;
+        attackCombo = 0;
     }
 
     IEnumerator attackColliderOnOff()

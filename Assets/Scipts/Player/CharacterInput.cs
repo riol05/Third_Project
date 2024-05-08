@@ -44,27 +44,25 @@ public class CharacterInput : MonoBehaviour
 
     public void OnMove(InputValue value)
     {
-        if(!freeze)
+        if (freeze) return;
         MoveInput(value.Get<Vector2>());
     }
     public void OnLook(InputValue value)
     {
-        if (!freeze)
-        {
+        if (freeze) return;
             if (isCursorLock)
                LookInput(value.Get<Vector2>());
-        }
     }
     public void OnSkillChange(InputValue value)
     {
         var ScrollValue = value.Get<float>();
-        if (!freeze)
-            ScrollInput(ScrollValue);
+        if (freeze) return;
+        ScrollInput(ScrollValue);
     }
     public void OnJump(InputValue value)
     {
-        if (!freeze)
-            JumpInput(value.isPressed);
+        if (freeze) return;
+        JumpInput(value.isPressed);
     }
     public void OnSprint(InputValue value)
     {
@@ -73,20 +71,20 @@ public class CharacterInput : MonoBehaviour
     }
     public void OnWire(InputValue value)
     {
-        if (!freeze)
-            WireInput(value.isPressed);
+        if (freeze) return;
+        WireInput(value.isPressed);
     }
 
     public void OnGetItem(InputValue Value) // inputsystem에 키 지정 z키
     {
-        if (!freeze)
+        
             GetItemInput();
     }
 
     public void OnAttack(InputValue value)
     {
-        if (!freeze)
-            Attack(value.isPressed);
+        if (freeze) return;
+        Attack(value.isPressed);
     }
 
     private void Attack(bool ison)

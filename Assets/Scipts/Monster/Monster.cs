@@ -6,25 +6,33 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum MonsterState
+{
+    Idle,
+    Hit,
+    Attack,
+    Patrol,
+    Chase,
+    BackHome,
+    Die
+}
+public enum MonsterType
+{
+    Common,
+    Elite,
+}
 public class Monster : MonoBehaviour, IDamageable
 {
-    public enum MonsterState
-    {
-        Idle,
-        Hit,
-        Attack,
-        Patrol,
-        Chase,
-        BackHome,
-        Die
-    }
-
-    private Vector3 HomePos;
-    public List<Item> dropTable;
-    public Item dropItem;
+    private MonsterSpawner HomePos;
+    public DropItem[] dropTable;
+    public DropItem dropItem;
     private MonsterState stateMon;
     private Dictionary<MonsterState, Action> StateMachineDic;
 
+    [SerializeField]
+    private AttackCollider AC;
+    [SerializeField]
+    private Animator anim;
 
     public int curHp;
     private int fullHp;
@@ -35,7 +43,10 @@ public class Monster : MonoBehaviour, IDamageable
     public float maxPatrolRadius;
     public float maxChaseRadius;
 
+    public int damage;
+    public MonsterType typeMONSTER;
     public LayerMask playerLayer;
+    public Projectile bulletPrefab;
     private void Awake()
     {
         StateMachineDic = new Dictionary<MonsterState, Action>()
@@ -49,16 +60,15 @@ public class Monster : MonoBehaviour, IDamageable
             {MonsterState.Hit, Hit },
         };
     }
-    private void Start()
+    public void SetHome(MonsterSpawner home)
     {
-        //transform.position = homepos; 여기서 homePos는 SpawnManager에 있는 위치 주변을 배정
+        HomePos = home;
     }
     private void OnEnable()
     {
         stateMon = MonsterState.Idle;
-        transform.position = HomePos;
     }
-    IEnumerator UpdateStateMachine() // 몬스터 상태머신 구현
+    IEnumerator UpdateStateMachine(int i) // 몬스터 상태머신 구현
     {
         while (stateMon != MonsterState.Die)
         {
@@ -78,11 +88,17 @@ public class Monster : MonoBehaviour, IDamageable
                 yield return new WaitForSeconds(4f);
             }
             StateMachineDic[stateMon]?.Invoke();
+            anim.SetInteger("MonsterState",(int)stateMon); // TODO : 몬스터 애니메이션 만들자
         }
         if (stateMon == MonsterState.Die)
         {
-            //TODO : 오브젝트 풀링으로 죽음
+            transform.position = Vector3.zero;
+            transform.rotation = Quaternion.identity;
+
+            yield return new WaitForSeconds(3f);
+            ObjectPoolingManager.Instance.DespawnMonster(this);
         }
+        anim.SetInteger("MonsterState", (int)stateMon); // TODO : 몬스터 애니메이션 만들자
         StateMachineDic[stateMon]?.Invoke();
         yield return null;
     }
@@ -91,11 +107,7 @@ public class Monster : MonoBehaviour, IDamageable
     {
         
     }
-    private void Attack()
-    {
-        var player = hitPlayer.transform.GetComponent<PlayerInteractInput>();// 플레이어 공격
-        GiveDamage();
-    }
+
     private void BackHome()
     {
         Speed = comeBackSpeed;
@@ -113,24 +125,61 @@ public class Monster : MonoBehaviour, IDamageable
         Speed = 0;
         stateMon = MonsterState.Chase;
     }
-
-    public void Die()
+    private void Attack()
     {
-        // 매니저를 통해 아이템 리스트를 가져와 dropItemPrefab의 아이템 Int와 일치하는 아이템 ID를 가져오게 만든다
-        // 몬스터가 드랍할때는 필요 없지만, 캐릭터가 드랍 아이템을 획득할때는 필요
-        // 경험치와 골드는 바로 인벤토리로 들어가게된다.
-        var item = Instantiate(dropItem.itemOnField); // 부모는 게임매니저 안에 있는 필드 아이템 부모 객체를 둠
-        item.GetComponent<DropItem>().itemID = dropItem.itemID;
-        item.transform.position = transform.position;
-        item.gameObject.SetActive(true);
+        var player = hitPlayer.transform.GetComponent<PlayerInteractInput>();// 플레이어 공격
+
+        if (typeMONSTER == MonsterType.Common)
+        {
+            GiveDamage();
+        }
+        else if (typeMONSTER == MonsterType.Elite)
+        {
+            ShotProjectile(damage);
+        }
     }
 
-    public void GetDamage()
+    public void ShotProjectile(int i) // 
+    {
+        var player = hitPlayer.transform.GetComponent<PlayerInteractInput>();// 플레이어 공격
+        transform.LookAt(player.transform);
+        // 라인 렌더러 로 총알 발사.
+        // 총알에 라인 렌더러를 달아 발사한다.
+        var bullet = Instantiate(bulletPrefab);
+        bullet.GetComponent<Projectile>().damage = i;
+        bullet.gameObject.SetActive(true);
+    }
+
+    IEnumerator AttackCollider(int i)
+    {
+
+        yield return null;
+    }
+    public void Die()
+    {
+        // 몬스터가 드랍할때는 필요 없지만, 캐릭터가 드랍 아이템을 획득할때는 필요
+        // 골드는 바로 인벤토리로 들어가게된다. 경험치 구현 X
+        // 
+        int i = UnityEngine.Random.Range(0,dropTable.Length - 1);
+        dropItem = dropTable[i];
+        var item = ObjectPoolingManager.Instance.SpawnItemDrop(dropItem,transform.position); // 부모는 게임매니저 안에 있는 필드 아이템 부모 객체를 둠
+        //item.GetComponent<DropItem>().itemID = dropItem.itemID;
+        item.gameObject.SetActive(true);
+        --HomePos.TotalMonster;
+    }
+
+
+    public void GetDamage(int i)
     {
         stateMon = MonsterState.Hit;
     }
 
-    public void GiveDamage()
+    private void GiveDamage()
     {
+    }
+
+    public void GiveDamage(int i)
+    {
+        throw new NotImplementedException();
     }
 }

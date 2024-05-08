@@ -9,7 +9,8 @@ using static UnityEditor.Progress;
 public class DropItem : MonoBehaviour, IInteractable
 {
     public int itemID;
-
+    [SerializeField]
+    private Item item;
     private void OnEnable()
     {
         StartCoroutine(willDestroy());
@@ -18,21 +19,21 @@ public class DropItem : MonoBehaviour, IInteractable
     IEnumerator willDestroy()
     {
         yield return new WaitForSeconds(20f);
-        this.gameObject.SetActive(false); // TODO : 시간이 지나면 오브젝트 풀링
+        ObjectPoolingManager.Instance.DespawnItem(this);
     }
-    public Item GetItemInf()
-    {
-        // 아이템 매니저에게서 플레이어
-        foreach (var item in ItemManager.Instance.AllItemList)
-        {
-            if(itemID == item.itemID)
-            {
-                //ItemSO = item;
-                return item;
-            }
-        }
-        return null;
-    }
+    //public Item GetItemInf()
+    //{
+    //    // 아이템 매니저에게서 플레이어
+    //    foreach (var item in ItemManager.Instance.AllItemList)
+    //    {
+    //        if(itemID == item.itemID)
+    //        {
+    //            //ItemSO = item;
+    //            return item;
+    //        }
+    //    }
+    //    return null;
+    //}
         RaycastHit hit;
     public void Interact()
     {
@@ -52,7 +53,8 @@ public class DropItem : MonoBehaviour, IInteractable
 
     public void GetItemInventory()
     {
-        Inventory.instance.CheckTypeForGetItem(GetItemInf());
-        Destroy(this.gameObject); // TODO : 오브젝트 풀링 사용
+        //Inventory.instance.CheckTypeForGetItem(GetItemInf());
+        Inventory.instance.CheckTypeForGetItem(item);
+        ObjectPoolingManager.Instance.DespawnItem(this);
     }
 }
