@@ -14,6 +14,8 @@ public enum MonsterState
     Patrol,
     Chase,
     BackHome,
+    Sturn,
+    Grap,
     Die
 }
 public enum MonsterType
