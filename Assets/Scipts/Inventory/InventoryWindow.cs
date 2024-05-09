@@ -17,7 +17,7 @@ public class InventoryWindow : MonoBehaviour
     private void Start()
     {
         slots = slotParent.GetComponentsInChildren<Slot>();
-        slotParent.SetActive(false);
+        
     }
 
     public void CheckEmptySlot(Item item)

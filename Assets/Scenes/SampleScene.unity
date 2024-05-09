@@ -2234,7 +2234,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 215462726}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 363001926}
+        m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
+        m_MethodName: ShowWindowButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &215462726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9187,7 +9199,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 896359910}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 363001926}
+        m_TargetAssemblyTypeName: Inventory, Assembly-CSharp
+        m_MethodName: ShowWindowButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &896359910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17842,7 +17866,6 @@ MonoBehaviour:
   changeWeapon: 0
   changeCD: 0
   isCursorLock: 1
-  cursorInputForLook: 1
   checkDropItem: 0
   attack: 0
 --- !u!1 &1756432338

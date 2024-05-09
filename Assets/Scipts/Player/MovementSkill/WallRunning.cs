@@ -146,6 +146,7 @@ public class WallRunning : MonoBehaviour
     {
         isWallRunning = false;
         exitingWall = true;
+        Third_PersonCamera.instance.DoFov(85f);
     }
 
     public bool CheckWall()
