@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEditor.UIElements;
 using UnityEngine;
 
@@ -60,6 +61,8 @@ public class Inventory : MonoBehaviour
 
     public void CheckTypeForGetItem(Item item)
     {
+        UIManager.instance.Item.ShowInfo(item.itemName); // 
+
         if(item.Type == ItemType.Potion)  PotionWindow.AcquireItem(item);
         
         else if (item.Type == ItemType.Ingredient)  IngradientWindow.AcquireItem(item);
@@ -72,6 +75,4 @@ public class Inventory : MonoBehaviour
         PotionWindow.Window.SetActive(whichInventoryActivated);
         IngradientWindow.Window.SetActive(!whichInventoryActivated);
     }
-
-
 }

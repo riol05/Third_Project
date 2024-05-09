@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
 
     
     public AlertInformation alert;
+    public GetItemInformation Item;
     private void Awake()
     {
         if(instance != null)

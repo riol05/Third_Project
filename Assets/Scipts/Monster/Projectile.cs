@@ -10,7 +10,7 @@ public class Projectile : MonoBehaviour
     public int damage;
     public float speed = 2f;
     [SerializeField]
-    LayerMask target; // 타겟만 데미지를 주게됨
+    LayerMask target; // 타겟만 데미지를 주게됨 // 스킬, 시전자에 따라 다른 prefab 사용
 
     RaycastHit hit;
     private void Start()
@@ -23,7 +23,7 @@ public class Projectile : MonoBehaviour
     }
     private void Update()
     {
-        transform.position = transform.forward * speed * Time.deltaTime;
+        transform.position = Vector3.forward * speed * Time.deltaTime;
         
         if(Physics.Raycast(transform.position,Vector3.forward,out hit, 0.1f,target))
         {

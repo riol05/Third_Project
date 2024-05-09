@@ -11,6 +11,7 @@ public class AttackCollider : MonoBehaviour
     [SerializeField]
     Collider boxForAttack2;
 
+    public Queue<Transform> targets = new Queue<Transform>();
     public float attackTime = 0.5f;
 
     public void Attack(int i)
@@ -33,5 +34,10 @@ public class AttackCollider : MonoBehaviour
         yield return null;
         yield return new WaitForSeconds(attackTime);
 
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        //target.Add(collision.collider.transform);
+        targets.Enqueue(collision.collider.transform);
     }
 }

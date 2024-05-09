@@ -28,7 +28,7 @@ public class CharacterInput : MonoBehaviour
 
     public bool isCursorLock = true;
 
-    public int checkDropItem;
+    public bool checkDropItem;
 
     public bool attack;
 
@@ -76,7 +76,7 @@ public class CharacterInput : MonoBehaviour
 
     public void OnGetItem(InputValue Value) // inputsystem에 키 지정 z키
     {
-        GetItemInput();
+        GetItemInput(Value.isPressed);
     }
 
     public void OnAttack(InputValue value)
@@ -139,9 +139,9 @@ public class CharacterInput : MonoBehaviour
         move = movedir;
     }
 
-    private void GetItemInput()
+    private void GetItemInput(bool ison )
     {
-        ++checkDropItem;
+        checkDropItem = ison;
     }
     //private void OnApplicationFocus(bool focus)
     //{

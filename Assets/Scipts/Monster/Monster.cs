@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public enum MonsterState
@@ -15,7 +16,6 @@ public enum MonsterState
     Chase,
     BackHome,
     Sturn,
-    Grap,
     Die
 }
 public enum MonsterType
@@ -31,6 +31,9 @@ public class Monster : MonoBehaviour, IDamageable
     private MonsterState stateMon;
     private Dictionary<MonsterState, Action> StateMachineDic;
 
+    private Vector3 dirPos;
+    private bool patrolStart = false;
+
     [SerializeField]
     private AttackCollider AC;
     [SerializeField]
@@ -38,7 +41,6 @@ public class Monster : MonoBehaviour, IDamageable
 
     public int curHp;
     private int fullHp;
-
     private float Speed;
     public float moveSpeed;
     private float comeBackSpeed;
@@ -46,9 +48,11 @@ public class Monster : MonoBehaviour, IDamageable
     public float maxChaseRadius;
 
     public int damage;
-    public MonsterType typeMONSTER;
     public LayerMask playerLayer;
+    
+    public MonsterType typeMONSTER;
     public Projectile bulletPrefab;
+    public Transform gunPivot;
     private void Awake()
     {
         StateMachineDic = new Dictionary<MonsterState, Action>()
@@ -57,7 +61,7 @@ public class Monster : MonoBehaviour, IDamageable
             {MonsterState.Attack, Attack },
             {MonsterState.Patrol, Patrol },
             {MonsterState.Chase, Chase },
-            {MonsterState.BackHome, BackHome },
+            {MonsterState.BackHome, Idle },
             {MonsterState.Die, Die },
             {MonsterState.Hit, Hit },
         };
@@ -101,6 +105,10 @@ public class Monster : MonoBehaviour, IDamageable
                 }
             }
 
+            if(stateMon != MonsterState.Patrol)
+            {
+                patrolStart = false;
+            }
             if (stateMon == MonsterState.BackHome)
             {
                 yield return new WaitForSeconds(4f);
@@ -123,20 +131,34 @@ public class Monster : MonoBehaviour, IDamageable
     RaycastHit hitPlayer;
     private void Idle()
     {
-        
+        dirPos = transform.position;
     }
 
     private void BackHome()
     {
         Speed = comeBackSpeed;
+        dirPos = HomePos.transform.position;
     }
     private void Chase()
     {
         Speed = moveSpeed;
+        dirPos = hitPlayer.transform.GetComponent<PlayerInteractInput>().transform.position;
     }
+
     private void Patrol()
     {
         Speed = moveSpeed;
+        if (!patrolStart)
+        {
+            patrolStart = true;
+            Vector3 vec = new Vector3(UnityEngine.Random.Range(-5, 5), 0, UnityEngine.Random.Range(-5, 5));
+            dirPos = transform.position + vec;
+        }
+        if (Vector3.Distance(dirPos, transform.position) >= 2f)
+        {
+            patrolStart = false;
+            stateMon = MonsterState.Idle;
+        }
     }
     private void Hit()
     {
@@ -149,7 +171,6 @@ public class Monster : MonoBehaviour, IDamageable
 
         if (typeMONSTER == MonsterType.Common)
         {
-            GiveDamage();
         }
         else if (typeMONSTER == MonsterType.Elite)
         {
@@ -157,27 +178,48 @@ public class Monster : MonoBehaviour, IDamageable
         }
     }
 
-    public void ShotProjectile(int i) // 
+    private void ShotProjectile(int i) // 
     {
         var player = hitPlayer.transform.GetComponent<PlayerInteractInput>();// 플레이어 공격
         transform.LookAt(player.transform);
         // 라인 렌더러 로 총알 발사.
         // 총알에 라인 렌더러를 달아 발사한다.
-        var bullet = Instantiate(bulletPrefab);
+        var bullet = ObjectPoolingManager.Instance.SpawnBullet(bulletPrefab,gunPivot.position);
         bullet.GetComponent<Projectile>().damage = i;
         bullet.gameObject.SetActive(true);
     }
 
-    IEnumerator AttackCollider(int i)
+    public AttackCollider ACollider;
+    IEnumerator AttackCollider(float f)
     {
+        RaycastHit hit;
+        yield return new WaitForSeconds(0.1f);
+        if (Physics.SphereCast(transform.position, 2f, transform.forward, out hit))
+        {
+            //RaycastHit[] hits = Physics.SphereCastAll(transform.position, 2f, transform.forward, 0f,monsterMask);
+            ACollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(f);
 
-        yield return null;
+            if (ACollider.targets.Count > 0)
+            {
+                Transform t;
+                while (ACollider.targets.TryDequeue(out t))
+                {
+                    PlayerInteractInput player = t.GetComponent<PlayerInteractInput>();
+                    //if (player != null) GiveDamage(damage, player);
+
+                    //else throw new NullReferenceException("monster component is not there");
+                }
+            }
+            ACollider.gameObject.SetActive(false);
+            yield return null;
+        }
     }
     public void Die()
     {
         // 몬스터가 드랍할때는 필요 없지만, 캐릭터가 드랍 아이템을 획득할때는 필요
         // 골드는 바로 인벤토리로 들어가게된다. 경험치 구현 X
-        // 
+        
         int i = UnityEngine.Random.Range(0,dropTable.Length - 1);
         dropItem = dropTable[i];
         var item = ObjectPoolingManager.Instance.SpawnItemDrop(dropItem,transform.position); // 부모는 게임매니저 안에 있는 필드 아이템 부모 객체를 둠
@@ -192,12 +234,8 @@ public class Monster : MonoBehaviour, IDamageable
         stateMon = MonsterState.Hit;
     }
 
-    private void GiveDamage()
+    public void GiveDamage(int i,PlayerInteractInput player)
     {
-    }
-
-    public void GiveDamage(int i)
-    {
-        throw new NotImplementedException();
+        //player.Getdamage(i);
     }
 }
