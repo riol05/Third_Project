@@ -27,7 +27,6 @@ public class CharacterInput : MonoBehaviour
     public float changeCD;
 
     public bool isCursorLock = true;
-    public bool cursorInputForLook = true;
 
     public int checkDropItem;
 
@@ -77,8 +76,7 @@ public class CharacterInput : MonoBehaviour
 
     public void OnGetItem(InputValue Value) // inputsystem에 키 지정 z키
     {
-        
-            GetItemInput();
+        GetItemInput();
     }
 
     public void OnAttack(InputValue value)
@@ -145,14 +143,21 @@ public class CharacterInput : MonoBehaviour
     {
         ++checkDropItem;
     }
-    private void OnApplicationFocus(bool focus)
-    {
-        SetCursorState(isCursorLock);
-    }
+    //private void OnApplicationFocus(bool focus)
+    //{
+    //    SetCursorState(isCursorLock);
+    //}
 
     private void SetCursorState(bool newState)
     {
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+    private void FixedUpdate()
+    {
+        if (freeze) isCursorLock = false;
+        else isCursorLock = true;
+
+        SetCursorState(isCursorLock);
     }
 }
 

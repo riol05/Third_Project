@@ -32,22 +32,31 @@ public class Inventory : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(CharacterInput.instance.inventoryOn == true ||
-            CharacterInput.instance.equipmentOn == true)
+        CharacterInput.instance.freeze = Activated; // 
+        if (inventoryActivate == true ||
+            equipmentActivate == true)
             Activated = true;
-        else if (CharacterInput.instance.inventoryOn == false &&
-            CharacterInput.instance.equipmentOn == false)
+        else if (inventoryActivate == false &&
+            equipmentActivate == false)
             Activated = false;
 
-        Activated = CharacterInput.instance.freeze; // 
-        InventoryON();
-        EquipmentON();
+        if (CharacterInput.instance.inventoryOn) InventoryON();
+
+        if(CharacterInput.instance.equipmentOn) EquipmentON();
     }
 
-    private void InventoryON() => InventorybaseObject.SetActive(CharacterInput.instance.inventoryOn);
-    private void EquipmentON() => EquipbaseObject.SetActive(CharacterInput.instance.equipmentOn);
-    public void OpenInventory() => InventorybaseObject.gameObject.SetActive(true);
-    public void CloseInventory() => InventorybaseObject.gameObject.SetActive(false);
+    private void InventoryON() 
+    {
+        inventoryActivate = !inventoryActivate;
+        CharacterInput.instance.inventoryOn = false;
+        InventorybaseObject.SetActive(inventoryActivate); 
+    }
+    private void EquipmentON() 
+    {
+        equipmentActivate = !equipmentActivate;
+        CharacterInput.instance.equipmentOn = false;
+        EquipbaseObject.SetActive(equipmentActivate);
+    }
 
     public void CheckTypeForGetItem(Item item)
     {
