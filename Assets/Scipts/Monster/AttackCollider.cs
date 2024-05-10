@@ -5,12 +5,6 @@ using UnityEngine;
 
 public class AttackCollider : MonoBehaviour
 {
-    [SerializeField]
-    Collider boxForAttack1;
-    
-    [SerializeField]
-    Collider boxForAttack2;
-
     public Queue<Transform> targets = new Queue<Transform>();
     public float attackTime = 0.5f;
 

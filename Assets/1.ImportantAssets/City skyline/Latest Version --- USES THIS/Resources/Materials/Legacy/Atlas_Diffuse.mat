@@ -2,20 +2,29 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Atlas_Diffuse
   m_Shader: {fileID: 4800000, guid: 44d228c174e736e4a92b2b6df7ea4a32, type: 3}
-  m_ShaderKeywords: _METALLICGLOSSMAP
-  m_LightmapFlags: 5
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _EMISSION
+  - _GLOSSYREFLECTIONS_OFF
+  - _METALLICGLOSSMAP
+  - _METALLICSPECGLOSSMAP
+  - _RECEIVE_SHADOWS_OFF
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -27,7 +36,15 @@ Material:
         m_Texture: {fileID: 2800000, guid: 96355c1b8f82f29418bd615b86d7227c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Cube:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -56,7 +73,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: df19adad87fddd748988692d15d754bc, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -73,6 +90,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Reflectivitymask:
         m_Texture: {fileID: 2800000, guid: 96355c1b8f82f29418bd615b86d7227c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _cubemap:
@@ -119,32 +140,65 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
     - _Cubemapbluriness: 0.5
     - _Cubemapblurriness: 0.372
     - _Cubemapemissive: 0.25
+    - _Cull: 2
     - _Cutoff: 0.5
     - _Desaturation: 0.451
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _DstBlendAlpha: 0
+    - _EnvironmentReflections: 1
     - _Float0: 13.57
     - _Float1: -241.7
     - _FresnelSharpness: 10
     - _Fresnelintensity: 1
     - _Fresnelpower: 5
     - _Gloss: 0
+    - _GlossMapScale: 0
     - _Glossiness: 1
+    - _GlossyReflections: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _QueueOffset: 0
+    - _ReceiveShadows: 0
     - _ReflectionLightlevel: 0
     - _Reflectiondarklevel: -0.52
     - _Reflectionlightlevel: 0.99
     - _Reflectionopacity: 1
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _Surface: 0
     - _UVSec: 0
+    - _WorkflowMode: 1
     - _ZWrite: 1
     - __dirty: 0
     - _node_1180: 1
@@ -160,11 +214,14 @@ Material:
     m_Colors:
     - _Albedocolor: {r: 0.659, g: 0.659, b: 0.659, a: 1}
     - _Ambiant: {r: 0.8340001, g: 0.872512, b: 1, a: 0}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Diffusecolor: {r: 0.966, g: 0.966, b: 0.966, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Fresnelcolor: {r: 0.343516, g: 0.47496665, b: 0.547, a: 1}
+    - _ReflectColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _ReflectioncolorTransparency: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _node_5305: {r: 0.947, g: 0.947, b: 0.947, a: 1}
     - _node_5806: {r: 0.687102, g: 0.8541808, b: 0.897, a: 1}
+  m_BuildTextureStacks: []

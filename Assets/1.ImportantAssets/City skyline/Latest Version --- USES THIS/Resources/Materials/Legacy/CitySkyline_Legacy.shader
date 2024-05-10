@@ -4,6 +4,7 @@ Shader "CitySkyline_Legacy"
 {
 	Properties
 	{
+		
 		[NoScaleOffset]_AtlasDiffuse("Atlas Diffuse", 2D) = "white" {}
 		_Albedocolor("Albedo color", Color) = (1,1,1,0)
 		_Fresnelcolor("Fresnel color", Color) = (1,1,1,0)

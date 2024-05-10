@@ -30,10 +30,29 @@ public class WallRunning : MonoBehaviour
 
     public bool isWallRunning;
     private bool exitingWall;
+
+    #region 애니메이션 관련
+    [SerializeField]
+    private Animator ani;
+    private string RwallRunningString;
+    private string LwallRunningString;
+
+    private string WallJumpString;
+    #endregion
     private void Awake()
     {
         cm = GetComponent<CharacterMovement>();
         cheker = GetComponent<ObjectChecker>();
+    }
+    private void Start()
+    {
+        AnimString();
+    }
+    private void AnimString()
+    {
+        RwallRunningString = "WallRunningR";
+        LwallRunningString = "WallRunningL";
+        WallJumpString = "WallJump";
     }
 
     private void OnDrawGizmos()
@@ -46,17 +65,10 @@ public class WallRunning : MonoBehaviour
     }
     private void Update()
     {
+        
         CheckForWallRun();
         CheckStateOnWall();
-        if(isWallRunning)
-        {
-            print("running now");
-        }
-        else
-        {
-            print("stop WallRunningNow");
-        }
-
+        
         if (isWallRunning)
             WallRunningMove();
     }
@@ -97,14 +109,12 @@ public class WallRunning : MonoBehaviour
             }
         }
         else
-        {
             StopwallRunning();
-        }
-
-
     }
     private void WallJump()
     {
+        ani.SetTrigger(WallJumpString);
+        CharacterInput.instance.jump = false;
         isWallRunning = false;
         exitingWall = true;
         exitWallTimer = exitWallTimerCD;
@@ -128,13 +138,17 @@ public class WallRunning : MonoBehaviour
 
     private void WallRunningMove()
     {
+        if (wallRight)
+            ani.SetBool(RwallRunningString, true);
+        else
+            ani.SetBool(LwallRunningString, true);
+
         Vector3 wallNormal = wallRight? rightHit.normal : leftHit.normal;
         Vector3 wallForward = Vector3.Cross(wallNormal,transform.up);
         if ((transform.forward - wallForward).magnitude > (transform.forward + wallForward).magnitude)
             wallForward = -wallForward;
         
         cm.rb.AddForce(wallForward * wallRunningSpeed, ForceMode.Force);
-
         if (!(wallRight && CharacterInput.instance.move.x < 0) && !(wallLeft && CharacterInput.instance.move.x > 0))
             cm.rb.AddForce(-wallNormal * (wallRunningSpeed/2) ,ForceMode.Force);
             
@@ -144,6 +158,7 @@ public class WallRunning : MonoBehaviour
     }
     private void StopwallRunning()
     {
+        ani.SetBool(RwallRunningString, false);
         isWallRunning = false;
         exitingWall = true;
         Third_PersonCamera.instance.DoFov(85f);
