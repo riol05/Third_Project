@@ -11,13 +11,11 @@ public class InventoryWindow : MonoBehaviour
     public GameObject slotParent;
     private List<Item> items;
 
-
     public int slotCnt;
     public GameObject InventorybaseObject;
     private void Start()
     {
         slots = slotParent.GetComponentsInChildren<Slot>();
-        
     }
 
     public void CheckEmptySlot(Item item)

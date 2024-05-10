@@ -238,4 +238,9 @@ public class Monster : MonoBehaviour, IDamageable
     {
         //player.Getdamage(i);
     }
+
+    public void GiveDamage(int i)
+    {
+        throw new NotImplementedException();
+    }
 }
