@@ -122,9 +122,8 @@ public class CharacterMovement : MonoBehaviour
         Vector3 inputDir = transform.forward * CharacterInput.instance.move.y + transform.right * CharacterInput.instance.move.x;
 
         if (activeGrapple) return; // grapple ฐüทร
-        
-        if (aniBlend.y != CharacterInput.instance.move.y && isground) rb.velocity = Vector3.zero;
 
+        if (aniBlend != CharacterInput.instance.move && isground) rb.velocity = Vector3.zero;
 
         if (CharacterInput.instance.look.x != 0 && CharacterInput.instance.move == Vector2.zero)
         {
@@ -171,7 +170,6 @@ public class CharacterMovement : MonoBehaviour
     
     private void OnJump()
     {
-        
         if (isGround)
         {
             JumpTime -= Time.deltaTime;
@@ -184,7 +182,7 @@ public class CharacterMovement : MonoBehaviour
                 ani.SetTrigger(animLandString);
                 ani.SetFloat(animMoveF, speed);
                 isJumping = false;
-                Invoke("FreezeStop",0.3f);
+                Invoke("FreezeStop",0.4f);
             }
             if(CharacterInput.instance.jump && JumpTime <= 0)
             {
@@ -197,7 +195,7 @@ public class CharacterMovement : MonoBehaviour
         }
         else
         {
-            if (!wall.CheckWall())
+            if (!wall.wallRight && !wall.wallLeft)
             {
                 JumpTime = jumpCD;
                 isJumping = true;

@@ -65,7 +65,15 @@ public class DrawRopeOnCamera : MonoBehaviour
             float delta = i / (float)quality;
             Vector3 offset = up * waveHeight * Mathf.Sin(delta * waveCount * Mathf.PI) * spring.Value * affectCurve.Evaluate(delta);
 
+            //StartCoroutine(SetPosition(i,delta,gunTipPosition,offset));
             lr.SetPosition(i, Vector3.Lerp(gunTipPosition, currentGrapplePosition, delta) + offset);
         }
+    }
+    IEnumerator SetPosition(int i, float delta, Vector3 gunTipPosition,Vector3 offset)
+    {
+        yield return new WaitForSeconds(0.2f);
+        lr.SetPosition(i, Vector3.Lerp(gunTipPosition, currentGrapplePosition, delta) + offset);
+        yield return null;
+
     }
 }

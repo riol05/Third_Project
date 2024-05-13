@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -89,8 +90,6 @@ public class CharacterInput : MonoBehaviour
     {
         attack = ison;
     }
-
-    
     private void ScrollInput(float f)
     {
         isChangeWeaponTime = true;
@@ -136,6 +135,9 @@ public class CharacterInput : MonoBehaviour
 
     private void MoveInput(Vector2 movedir)
     {
+        movedir.y = movedir.y == 0 ? 0 : (movedir.y < 0 ? -1 : 1);
+        movedir.x = movedir.x == 0 ? 0 : (movedir.x < 0 ? -1 : 1);
+
         move = movedir;
     }
 

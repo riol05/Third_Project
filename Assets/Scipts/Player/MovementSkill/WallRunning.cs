@@ -16,8 +16,8 @@ public class WallRunning : MonoBehaviour
 
     private RaycastHit rightHit;
     private RaycastHit leftHit;
-    private bool wallRight;
-    private bool wallLeft;
+    public bool wallRight;
+    public bool wallLeft;
     public float wallRunningSpeed;
     public float jumpPower;
     public float wallSideForce;
@@ -65,7 +65,6 @@ public class WallRunning : MonoBehaviour
     }
     private void Update()
     {
-        
         CheckForWallRun();
         CheckStateOnWall();
         
@@ -113,10 +112,10 @@ public class WallRunning : MonoBehaviour
     }
     private void WallJump()
     {
-        ani.SetTrigger(WallJumpString);
+        StopwallRunning();
         CharacterInput.instance.jump = false;
-        isWallRunning = false;
-        exitingWall = true;
+        ani.SetTrigger(WallJumpString);
+
         exitWallTimer = exitWallTimerCD;
         Vector3 wallNormal = wallRight ? rightHit.normal : leftHit.normal;
         Vector3 WallJumpForce = transform.up * jumpPower + wallNormal * wallSideForce;
@@ -152,13 +151,14 @@ public class WallRunning : MonoBehaviour
         if (!(wallRight && CharacterInput.instance.move.x < 0) && !(wallLeft && CharacterInput.instance.move.x > 0))
             cm.rb.AddForce(-wallNormal * (wallRunningSpeed/2) ,ForceMode.Force);
             
-        cm.rb.AddForce(transform.up * 20f ,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
+        cm.rb.AddForce(transform.up * 10f ,ForceMode.Force); // 만약 너무 높이 올라간다면 10f 변수를 바꿔주자
         // TODO : 느리게 날아가는데 이거일수도?? // TODO : NO.2
         // print("WallRunning Error Code : ");
     }
     private void StopwallRunning()
     {
         ani.SetBool(RwallRunningString, false);
+        ani.SetBool(LwallRunningString, false);
         isWallRunning = false;
         exitingWall = true;
         Third_PersonCamera.instance.DoFov(85f);

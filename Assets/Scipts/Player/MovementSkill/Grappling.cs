@@ -11,6 +11,9 @@ public class Grappling : MonoBehaviour
     public CinemachineVirtualCamera cam;
     public Transform gunTip;
     public LayerMask whatIsGrappleable;
+    [SerializeField]
+    private Animator ani;
+
 
     [Header("Grappling")]
     public float maxGrappleDistance = 100;
@@ -41,6 +44,7 @@ public class Grappling : MonoBehaviour
     private void StartGrapple()
     {
         if (grapplingCdTimer > 0) return;
+        ani.SetTrigger("Grappling");
         CharacterInput.instance.wire = false;
         grappling = true;
         pm.freeze = true;
@@ -66,6 +70,7 @@ public class Grappling : MonoBehaviour
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
 
         if (grapplePointRelativeYPos < 0) highestPointOnArc = overshootYAxis;
+        
         pm.JumpToPosition(grapplePoint, highestPointOnArc);
 
         Invoke(nameof(StopGrapple), 1f);

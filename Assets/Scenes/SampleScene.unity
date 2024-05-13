@@ -1017,8 +1017,8 @@ Transform:
   m_GameObject: {fileID: 81671905}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.049749397, y: 0.23409, z: -0.07244361}
-  m_LocalScale: {x: 0.01, y: 0.28419003, z: 0.12159499}
+  m_LocalPosition: {x: 0.049749397, y: 0.6, z: -0.07244361}
+  m_LocalScale: {x: 0.01, y: 1, z: 0.12159499}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 147071114}
@@ -3917,7 +3917,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 2be06e131ba7082458db179433b9c248, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -5376,8 +5376,8 @@ Transform:
   m_GameObject: {fileID: 299161992}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.09564939, y: 0.23409, z: -0.16864361}
-  m_LocalScale: {x: 0.01, y: 0.28419003, z: 0.12159499}
+  m_LocalPosition: {x: 0.09564939, y: 0.61, z: -0.16864361}
+  m_LocalScale: {x: 0.01, y: 1, z: 0.12159499}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 147071114}
@@ -9179,8 +9179,8 @@ Transform:
   m_GameObject: {fileID: 575121154}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.1002494, y: 0.23409, z: 0.013859388}
-  m_LocalScale: {x: 0.01, y: 0.28419, z: 0.121595}
+  m_LocalPosition: {x: 0.1002494, y: 0.601, z: 0.013859388}
+  m_LocalScale: {x: 0.01, y: 1, z: 0.121595}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 147071114}
@@ -19167,10 +19167,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pm: {fileID: 1754095874}
   cam: {fileID: 1457779480}
-  gunTip: {fileID: 1754095872}
+  gunTip: {fileID: 156090892}
   whatIsGrappleable:
     serializedVersion: 2
     m_Bits: 192
+  ani: {fileID: 165359050}
   maxGrappleDistance: 100
   grappleDelayTime: 0.1
   overshootYAxis: 2
@@ -20148,7 +20149,7 @@ MonoBehaviour:
   wall: {fileID: 0}
   rb: {fileID: 0}
   ani: {fileID: 165359050}
-  moveSpeed: 3
+  moveSpeed: 5
   rotationVelocity: 0.7
   rotationSmoothTime: 0.1
   activeGrapple: 0
@@ -20243,14 +20244,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   onGizmo: 1
-  WallRadius: 0.33
-  wallRayDistance: 0.34
+  WallRadius: 0.6
+  wallRayDistance: 0.63
   WallLayer:
     serializedVersion: 2
     m_Bits: 128
+  wallRight: 0
+  wallLeft: 0
   wallRunningSpeed: 10
-  jumpPower: 2
-  wallSideForce: 2
+  jumpPower: 500
+  wallSideForce: 150
   isWallRunning: 0
   ani: {fileID: 165359050}
 --- !u!114 &1754095881
@@ -23052,8 +23055,8 @@ Transform:
   m_GameObject: {fileID: 2101011049}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.050949402, y: 0.23409, z: -0.22834358}
-  m_LocalScale: {x: 0.01, y: 0.28419003, z: 0.12159499}
+  m_LocalPosition: {x: 0.050949402, y: 0.593, z: -0.22834358}
+  m_LocalScale: {x: 0.01, y: 1, z: 0.12159499}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 147071114}
