@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum MonsterState
 {
@@ -17,6 +18,11 @@ public enum MonsterState
     BackHome,
     Sturn,
     Die
+}
+public enum ElevatorState
+{
+    elevator,
+    None
 }
 public enum MonsterType
 {
@@ -51,8 +57,10 @@ public class Monster : MonoBehaviour, IDamageable
     public LayerMask playerLayer;
     
     public MonsterType typeMONSTER;
+    public ElevatorState elevatorState;
     public Projectile bulletPrefab;
     public Transform gunPivot;
+
     private void Awake()
     {
         StateMachineDic = new Dictionary<MonsterState, Action>()
@@ -78,6 +86,9 @@ public class Monster : MonoBehaviour, IDamageable
     {
         while (stateMon != MonsterState.Die)
         {
+            if (elevatorState == ElevatorState.elevator)
+                
+                
             if (typeMONSTER == MonsterType.Common)
             {
                 if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
@@ -137,6 +148,7 @@ public class Monster : MonoBehaviour, IDamageable
     private void BackHome()
     {
         Speed = comeBackSpeed;
+        curHp = fullHp;
         dirPos = HomePos.transform.position;
     }
     private void Chase()
@@ -226,6 +238,7 @@ public class Monster : MonoBehaviour, IDamageable
         //item.GetComponent<DropItem>().itemID = dropItem.itemID;
         item.gameObject.SetActive(true);
         --HomePos.TotalMonster;
+        
     }
 
 

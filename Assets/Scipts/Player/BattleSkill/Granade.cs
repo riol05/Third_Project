@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Granade : MonoBehaviour, ISkillAble
 {
+    
 
     public void Damage()
     {

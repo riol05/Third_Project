@@ -27,7 +27,7 @@ public class Projectile : MonoBehaviour
         
         if(Physics.Raycast(transform.position,Vector3.forward,out hit, 0.1f,target))
         {
-            hit.transform.GetComponent<IDamageable>().GiveDamage(damage);
+            hit.transform.GetComponent<IDamageable>().GiveDamage(damage); // TODO : 투사체 대미지
             DestroyBullet();
         }
         else if (Physics.Raycast(transform.position, Vector3.forward, 0.1f))

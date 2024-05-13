@@ -10,7 +10,7 @@ public class AttackCollider : MonoBehaviour
 
     public void Attack(int i)
     {
-        if (i < 0 && i > 3)   return;
+        if (i < 0 && i > 3)  return;
         
         else
             StartCoroutine(AttackColliderOn(i));

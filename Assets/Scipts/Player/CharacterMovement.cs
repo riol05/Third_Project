@@ -137,7 +137,11 @@ public class CharacterMovement : MonoBehaviour
         float inputMagnitude = CharacterInput.instance.analogMovement ? CharacterInput.instance.move.magnitude : 1f;
         if(CharacterInput.instance.move.y < 0)
         {
-            targetSpeed /= 1.2f;
+            targetSpeed = targetSpeed * 0.5f;
+        }
+        else if(CharacterInput.instance.move.y == 0)
+        {
+            targetSpeed = targetSpeed * 0.7f;
         }
         speed = targetSpeed;
         aniBlend = CharacterInput.instance.move;
@@ -158,6 +162,7 @@ public class CharacterMovement : MonoBehaviour
 
         else if (checkObject.SlopeCheck() || isGround )
         {
+            
             float accelSpeed = checkObject.SlopeCheck() ? 1.5f : 2f;
             rb.AddForce(inputDir.normalized * speed * accelSpeed, ForceMode.Force);
         }
@@ -195,6 +200,7 @@ public class CharacterMovement : MonoBehaviour
         }
         else
         {
+            if (CharacterInput.instance.jump) CharacterInput.instance.jump = false;
             if (!wall.wallRight && !wall.wallLeft)
             {
                 JumpTime = jumpCD;

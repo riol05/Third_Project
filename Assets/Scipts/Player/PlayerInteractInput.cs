@@ -51,6 +51,7 @@ public class PlayerInteractInput : MonoBehaviour
     //    }
     //} // 상호작용 EX
 
+    bool isComboNow;
     public void Attack()
     {
         CharacterInput.instance.attack = false;
@@ -58,6 +59,7 @@ public class PlayerInteractInput : MonoBehaviour
         attackCombo++;
         if (playerMove.isground)// 지상공격
         {
+            if(isComboNow)
             switch (attackCombo)
             {
                 case 0:
@@ -85,8 +87,6 @@ public class PlayerInteractInput : MonoBehaviour
                 default: break;
             }
         }
-        else              // 공중콤보 구현 x
-        { }
     }
     public bool isAttack;
     public int attackCombo;
@@ -105,7 +105,6 @@ public class PlayerInteractInput : MonoBehaviour
             attackTime = attackTimeCD;
             exitAttackTime = exitAttackTimeCD;
         }
-
 
         if (attackTime > 0 )
         {

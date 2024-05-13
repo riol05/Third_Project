@@ -9,8 +9,9 @@ public class MonsterSpawner : MonoBehaviour
     public Monster CommonMonsterPrefab;
     public Monster eliteMonsterPrefab;
     public int TotalMonster;
-    public float SpawnCD;
-    public float TotalCD;
+    public int spawnMonster;
+    public float SpawnCD ;
+    public float TotalCD = 20f;
     private void Start()
     {
         SpawnMonster();
@@ -21,7 +22,7 @@ public class MonsterSpawner : MonoBehaviour
         if (TotalMonster == 0)
             SpawnCD -= Time.deltaTime;
 
-        if (SpawnCD <= 0)
+        if (SpawnCD <= 0 && TotalMonster <= 0)
         {
             SpawnMonster();
             SpawnCD = TotalCD;
@@ -29,22 +30,22 @@ public class MonsterSpawner : MonoBehaviour
     }
     public void SpawnMonster()
     {
-        foreach(Vector3 pos in SpawnPos)
+        for(int i = 0; i <=spawnMonster; ++i)
         {
-            //Vector3 pos = new Vector3(UnityEngine.Random.Range(-3, 10),0, UnityEngine.Random.Range(-3, 10));
-
-            int i = UnityEngine.Random.Range(0, 3);
-            if (i == 3)
+            Vector3 monsterStartPos = new Vector3(UnityEngine.Random.Range(-10, 10),1, UnityEngine.Random.Range(-10, 10));
+            monsterStartPos = transform.position + monsterStartPos;
+            int r = UnityEngine.Random.Range(0, 3);
+            if (r == 3)
             {
-                var monster = ObjectPoolingManager.Instance.SpawnMonster(eliteMonsterPrefab, pos);
+                var monster = ObjectPoolingManager.Instance.SpawnMonster(eliteMonsterPrefab, monsterStartPos);
                 monster.GetComponent<Monster>().SetHome(this);
             }
             else
             {
-                var monster = ObjectPoolingManager.Instance.SpawnMonster(CommonMonsterPrefab, pos);
+                var monster = ObjectPoolingManager.Instance.SpawnMonster(CommonMonsterPrefab, monsterStartPos);
                 monster.GetComponent<Monster>().SetHome(this);
             }
-            ++TotalMonster;
         }
+        TotalMonster = spawnMonster;
     }
 }
