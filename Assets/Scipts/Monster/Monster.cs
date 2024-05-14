@@ -244,7 +244,9 @@ public class Monster : MonoBehaviour, IDamageable
 
     public void GetDamage(int i)
     {
-        stateMon = MonsterState.Hit;
+        curHp -= i;
+        if (curHp <= 0)  stateMon = MonsterState.Die;
+        else  stateMon = MonsterState.Hit;
     }
 
     public void GiveDamage(int i,PlayerInteractInput player)
