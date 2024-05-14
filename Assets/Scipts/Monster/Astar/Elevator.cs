@@ -4,10 +4,10 @@ using TreeEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Elevator : MonoBehaviour
+public class Elevator : MonoBehaviour // TODO : 집에서 테스트 해보자
 {
     Vector3[] elevatorPos; // 엘레베이터에 들어온 Transform의 위치 지정
-    Queue<Transform> someOneInElevator = new Queue<Transform>();
+    List<Transform> elevatorLifter;
     
     [SerializeField]
     public float OpenDoorCount;
@@ -17,14 +17,15 @@ public class Elevator : MonoBehaviour
     public bool isOpen;
     public Transform StartPos;
     public Transform EndPos;
-    public void CallElevator(Transform someone)
+    public void CallElevator()
     {
-        // 엘레베이터 문 열림
         OpenDoor();
-        someOneInElevator.Enqueue(someone);
+        // 엘레베이터 문 열림
         // 엘레베이터 위치에 걸어가기
-        CloseDoor();
-        StartCoroutine(GoUpStair());
+        if(Physics.BoxCast(transform.position,transform.lossyScale,Vector3.forward))
+        {
+            StartCoroutine(GoStair());
+        }
     }
     private void OpenDoor()
     {
@@ -34,15 +35,28 @@ public class Elevator : MonoBehaviour
     {
         isOpen = false;
     }
+    IEnumerator elevatorCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(GoStair());
+    }
 
-    IEnumerator GoUpStair()
+    IEnumerator GoStair()
     {
         yield return new WaitForSeconds(OpenDoorCount);
-
-        while (transform.position != EndPos.position)
+        CloseDoor();
+        Vector3 dirPos;
+        if(transform.position == EndPos.position)
         {
-            transform.Translate(EndPos.position * Time.deltaTime * ElevatorSpeed);
-
+            dirPos = StartPos.position;
+        }
+        else
+        {
+            dirPos = EndPos.position;
+        }
+        while (transform.position != dirPos)
+        {
+            transform.Translate(dirPos* Time.deltaTime * ElevatorSpeed);
         }
     }
 }

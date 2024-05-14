@@ -1,6 +1,6 @@
 // Made with Amplify Shader Editor
 // Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "CitySkyline_Legacy"
+Shader "Custom/CitySkyline_Legacy"
 {
 	Properties
 	{
@@ -164,6 +164,7 @@ Shader "CitySkyline_Legacy"
 	}
 	Fallback "Diffuse"
 	CustomEditor "ASEMaterialInspector"
+	//CustomEditor "CustomEditors.ASEMaterialInspector"
 }
 /*ASEBEGIN
 Version=13701

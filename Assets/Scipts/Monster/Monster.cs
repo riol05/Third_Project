@@ -34,7 +34,6 @@ public class Monster : MonoBehaviour, IDamageable
     private MonsterSpawner HomePos;
     public DropItem[] dropTable;
     public DropItem dropItem;
-    private MonsterState stateMon;
     private Dictionary<MonsterState, Action> StateMachineDic;
 
     private Vector3 dirPos;
@@ -55,9 +54,13 @@ public class Monster : MonoBehaviour, IDamageable
 
     public int damage;
     public LayerMask playerLayer;
-    
-    public MonsterType typeMONSTER;
+
+    private MonsterType typeMONSTER;
+    [HideInInspector]
+    public MonsterState stateMon;
+    [HideInInspector]
     public ElevatorState elevatorState;
+
     public Projectile bulletPrefab;
     public Transform gunPivot;
 
@@ -87,32 +90,36 @@ public class Monster : MonoBehaviour, IDamageable
         while (stateMon != MonsterState.Die)
         {
             if (elevatorState == ElevatorState.elevator)
-                
-                
-            if (typeMONSTER == MonsterType.Common)
             {
-                if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
-                    stateMon = MonsterState.Attack;
-                else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
-                    stateMon = MonsterState.Chase;
-                
-                if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
-                {
-                    if (Physics.SphereCast(transform.position, 13f, transform.forward, out hitPlayer, playerLayer))
-                        stateMon = MonsterState.BackHome;
-                }
-            }
-            if(typeMONSTER == MonsterType.Elite)
-            {
-                if (Physics.SphereCast(transform.position, 7f, transform.forward, out hitPlayer, playerLayer)) // 사거리임
-                    stateMon = MonsterState.Attack;
-                else if (Physics.SphereCast(transform.position, 15f, transform.forward, out hitPlayer, playerLayer))
-                    stateMon = MonsterState.Chase;
 
-                if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+            }
+            else
+            {
+                if (typeMONSTER == MonsterType.Common)
                 {
-                    if (Physics.SphereCast(transform.position, 25f, transform.forward, out hitPlayer, playerLayer))
-                        stateMon = MonsterState.BackHome;
+                    if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
+                        stateMon = MonsterState.Attack;
+                    else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
+                        stateMon = MonsterState.Chase;
+
+                    if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+                    {
+                        if (Physics.SphereCast(transform.position, 13f, transform.forward, out hitPlayer, playerLayer))
+                            stateMon = MonsterState.BackHome;
+                    }
+                }
+                if (typeMONSTER == MonsterType.Elite)
+                {
+                    if (Physics.SphereCast(transform.position, 7f, transform.forward, out hitPlayer, playerLayer)) // 사거리임
+                        stateMon = MonsterState.Attack;
+                    else if (Physics.SphereCast(transform.position, 15f, transform.forward, out hitPlayer, playerLayer))
+                        stateMon = MonsterState.Chase;
+
+                    if (stateMon == MonsterState.Chase || stateMon == MonsterState.Attack)
+                    {
+                        if (Physics.SphereCast(transform.position, 25f, transform.forward, out hitPlayer, playerLayer))
+                            stateMon = MonsterState.BackHome;
+                    }
                 }
             }
 
