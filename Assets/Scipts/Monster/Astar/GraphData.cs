@@ -1,49 +1,73 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+
+[System.Serializable]
 public class Node
 {
-    public Node(Vector3 Position) { Pos = Position; }
     public Vector3 Pos;
-    public bool isOpen { get { return isopen; } }
-    private bool isopen;
-    public int NumberForNode = -1;
+    public void SetPosition(Vector3 dir) => Pos = dir;
 
+    public bool isOpen { get { return isopen; } }
+    
+    
+    private bool isopen =true;
+    public void SetAsOpen(bool isopen) => this.isopen = isopen;
+
+    public int NumberForNode = -1;
+    
     [HideInInspector]
     public float hDistance;
     [HideInInspector]
     public float pDistance;
     [HideInInspector]
-    public Node previousNode;
-    
+    public float CombineHDistance { get { return pDistance + hDistance; } }
+    [HideInInspector]
+    public List<Node> previousNode;
 
+    
 }
+
+[System.Serializable]
 public class Path
 {
-    public Path(Node a, Node b) { a = startNode; b = endNode; }
-    public Path(int a, int b) { a = nodeANum; b = nodeBNum; }
-
-    public Node startNode;
-    public Node endNode;
+    public Path(Node a,Node b) {
+        nodeA =a ; 
+        nodeB=b;
+        nodeANum = a.NumberForNode;
+        nodeBNum = b.NumberForNode;
+    }
 
     public int nodeANum;
     public int nodeBNum;
+    [HideInInspector]
+    public Node nodeA;
+    [HideInInspector]
+    public Node nodeB;
 
     public int NumberForPath = -1;
     public bool isOneWay = false;
     public bool isOpen = true;
 }
+
+[System.Serializable]
 public class GraphData 
 {
+    public Color lineColor = Color.green;
     public float nodeSize = 0.5f;
+    public float heigtFromGround = 1;
+    public string WhatIsGroundTagName = "Ground";
     public List<Node> nodes;
     public List<Path> paths;
+
+    [HideInInspector]
     public Dictionary<int, Node> nodeSorted;
+    [HideInInspector]
     public Dictionary<int, Path> PathSorted;
-
-
-    public GameObject node;
+    //\Assets\QPathFinder\Script\Editor\PathFinderEditor.cs
 
     public GraphData()
     {
@@ -78,16 +102,17 @@ public class GraphData
         }
         return null;
     }
+    
     public void RefreshSortedDictionary()
     {
         if (nodes == null)
             return;
         int maxId = 0;
 
-        for (int i = 0; i < nodes.Count; i++)
-        {
-            if (nodes[i].NumberForNode > maxId) maxId = nodes[i].NumberForNode;
-        }
+        //for (int i = 0; i < nodes.Count; i++)
+        //{
+        //    if (nodes[i].NumberForNode > maxId) maxId = nodes[i].NumberForNode;
+        //}
         maxId = maxId + 1;
 
         for (int i = 0; i < nodes.Count; i++)
@@ -97,10 +122,10 @@ public class GraphData
      
         
         maxId = 0;
-        for (int i = 0; i < paths.Count; i++)
-        {
-            if (paths[i].NumberForPath > maxId) maxId = paths[i].NumberForPath;
-        }
+        //for (int i = 0; i < paths.Count; i++)
+        //{
+        //    if (paths[i].NumberForPath > maxId) maxId = paths[i].NumberForPath;
+        //}
         maxId = maxId + 1;
 
         for(int i = 0;i < paths.Count; i++)
@@ -123,19 +148,6 @@ public class GraphData
     }
 
 
-    //[ContextMenu("Hello")]
-    //public void Something()
-    //{
-    //    Vector3 nextPos;
-    //    for(int i = 0; i< 10; i++)
-    //    {
-    //        for(int j = 0; j < 10; j++)
-    //        {
-    //            nextPos = new Vector3(i, 0, j);
-    //            GameObject instance = Instantiate(node, nextPos, Quaternion.identity);
-    //            instance.transform.SetParent(transform);
-    //        }
-    //    }
-    //}
+
 
 }

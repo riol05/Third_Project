@@ -32,9 +32,9 @@ public class PathFollower : MonoBehaviour
 
     IEnumerator FollowPath()
     {
-        print("If Error Fix this Method");
+        print("If Error, Fix this Method");
         yield return null;
-        while (!isEndPoint(currentIndex))
+        while (!isEndPoint(currentIndex))// true
         {
             Mathf.Clamp(currentIndex ,0 ,EndIndex());
             if (isOnPoint(currentIndex))
