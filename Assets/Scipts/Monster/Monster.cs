@@ -64,8 +64,6 @@ public class Monster : MonoBehaviour, IDamageable
     private MonsterType typeMONSTER;
     [HideInInspector]
     public MonsterState stateMon;
-    [HideInInspector]
-    public ElevatorState elevatorState;
 
     public Projectile bulletPrefab;
     public Transform gunPivot;
@@ -91,17 +89,32 @@ public class Monster : MonoBehaviour, IDamageable
     {
         stateMon = MonsterState.Idle;
         Home = transform.parent.GetComponent<MonsterSpawner>();
-        StartCoroutine(UpdateStateMachine());
+        pathFollow.target = Home.transform;
+        //StartCoroutine(UpdateStateMachine()); // 상태 머신
+        pathFollow.Follow(Home.transform.position, moveSpeed);
     }
+    
+    float IdleTime = 3f;
+    float idleCd;
     IEnumerator UpdateStateMachine() // 몬스터 상태머신 구현
     {
         while (stateMon != MonsterState.Die)
         {
+            if(stateMon == MonsterState.Idle)
+            {
+                if(idleCd >0) idleCd -= Time.deltaTime;
+                if (idleCd < 0)
+                {
+                    idleCd = IdleTime;
+                    stateMon = MonsterState.Patrol;
+                    continue;
+                }
+            }
+            else idleCd = IdleTime;
             if (Vector3.Distance(Home.transform.position,transform.position) > 50) stateMon = MonsterState.BackHome;
             print(stateMon);
-            if (elevatorState == ElevatorState.elevator)
-            {
-            }
+            if (stateMon != MonsterState.Patrol) patrolStart = false;
+            
             if (stateMon == MonsterState.BackHome) 
             {
                 BackHome();
@@ -115,7 +128,7 @@ public class Monster : MonoBehaviour, IDamageable
                         stateMon = MonsterState.Attack;
                     else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
                         stateMon = MonsterState.Chase;
-
+                    else stateMon = MonsterState.Idle;
                 }
                 else if (typeMONSTER == MonsterType.Elite)
                 {
@@ -123,16 +136,15 @@ public class Monster : MonoBehaviour, IDamageable
                         stateMon = MonsterState.Attack;
                     else if (Physics.SphereCast(transform.position, 15f, transform.forward, out hitPlayer, playerLayer))
                         stateMon = MonsterState.Chase;
-
+                    else stateMon = MonsterState.Idle;
                 }
             }
             StateMachineDic[stateMon]?.Invoke();
             //anim.SetInteger("MonsterState",(int)stateMon); // TODO : 몬스터 애니메이션 만들자
 
             yield return null;
-            yield return new WaitForSeconds(0.7f);
+
             if (stateMon == prevState) continue;
-            else yield return new WaitForSeconds(0.7f);
             yield return null;
         }
         if (stateMon == MonsterState.Die)
@@ -165,18 +177,21 @@ public class Monster : MonoBehaviour, IDamageable
 
         prevState = MonsterState.BackHome;
 
-        if (pathFollow.isClose())
+        if (pathFollow.isCloseDir())
         {
             stateMon = MonsterState.Idle;
         }
     }
+    static float chaseTCD = 3f;
+    float chaseCD = 0;
     private void Chase()
     {
         dirPos = hitPlayer.transform.GetComponent<PlayerInteractInput>().transform.position;
         Speed = moveSpeed;
-
-        if (stateMon != prevState)
+        chaseCD -= Time.deltaTime;
+        if (stateMon != prevState || chaseCD <= 0)
         {
+            chaseCD = chaseTCD;
             Debug.Log("Chasenow");
             pathFollow.Follow(dirPos, Speed);
         }
@@ -195,7 +210,7 @@ public class Monster : MonoBehaviour, IDamageable
         }
         if (stateMon != prevState)
             pathFollow.Follow(dirPos, Speed);
-        if(pathFollow.isClose())
+        if(pathFollow.isCloseDir())
         {
             stateMon = MonsterState.Idle;
 
@@ -205,7 +220,7 @@ public class Monster : MonoBehaviour, IDamageable
     private void Hit()
     {
         Speed = 0;
-        stateMon = MonsterState.Chase;
+        stateMon = MonsterState.Idle;
     }
     private void Attack()
     {
@@ -227,7 +242,6 @@ public class Monster : MonoBehaviour, IDamageable
         bullet.GetComponent<Projectile>().damage = i;
         bullet.gameObject.SetActive(true);
         stateMon = MonsterState.Chase;
-
     }
     public AttackCollider ACollider;
     IEnumerator AttackCollider(float f)

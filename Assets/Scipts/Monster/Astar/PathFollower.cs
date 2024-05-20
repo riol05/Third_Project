@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using TreeEditor;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
@@ -18,13 +19,13 @@ public class PathFollower : MonoBehaviour
     //private Node CastToNode(System.Object ob) { if (ob is Node node) return node; Debug.Assert(false, "CastNodeFail"); return null; }
     private  bool IsOnPoint(int pointIndex) { return (transform.position - pathToFollow[pointIndex]).sqrMagnitude < 0.1f; }
     private bool isEndPoint(int pointIndex) { return pointIndex == EndIndex(); }
-    private int EndIndex() { ;return pathToFollow.Count - 1; }
+    private int EndIndex() { return pathToFollow.Count - 1; } // -1
     private int GetNextIndex(int curIndex) { int NextIndex = -1 ; if (curIndex < EndIndex()) NextIndex = curIndex + 1; return NextIndex; }
 
-
+    public Transform target;
     private List<Vector3> pathToFollow =new List<Vector3>();
     private int currentIndex;
-    public bool isClose()
+    public bool isCloseDir()
     {
         if (pathToFollow.Count == 0)
         {
@@ -39,31 +40,33 @@ public class PathFollower : MonoBehaviour
         
     public void Follow(Vector3 dir, float MoveSpeed)
     {
+        stopFollow();
         GetNodeToPositionList(dir);
         speed = MoveSpeed;
         currentIndex = 0;
-        stopFollow();
-        StartCoroutine(FollowPath());
     }
+
     public void stopFollow() => StopAllCoroutines();
 
+    public void FollowContinuing() => StartCoroutine(FollowPath());
     IEnumerator FollowPath()
     {
-        print("If Error, Fix this Method");
         yield return null;
         while (!isEndPoint(currentIndex))// true
         {
-            currentIndex = Mathf.Clamp(currentIndex ,0 ,EndIndex());
-            if(isEndPoint(currentIndex))
-            {
-                break;
-            }
+            currentIndex = Mathf.Clamp(currentIndex ,0 ,EndIndex()); // +1에 대해 생각하는거로
+            Debug.Log("coroutine start");
             if (IsOnPoint(currentIndex))
                 GetNextIndex(currentIndex);
             else
+            {
+                Debug.Log("move start");
                 MoveTo(currentIndex);
+            }
             yield return null;
         }
+        yield return null;
+        Debug.Log("coroutine End");
     }
 
     private void MoveTo(Vector3 dir)
@@ -77,16 +80,35 @@ public class PathFollower : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position,dir,speed * Time.deltaTime);
     }
     private void GetNodeToPositionList(Vector3 f)
+    //IEnumerator GetnodeToPosition(Vector3 f)
     {
-        Node nearNode = PathFinder.instance.graphData.GetNode(FindNearNode(f));
-        Node nearByNode = PathFinder.instance.graphData.GetNode(FindNearNode(transform.position));
-
-        if (nearNode == null)
+        //pathToFollow.Add(transform.position);
+        Node fromNode = PathFinder.instance.graphData.GetNode(FindNearNode(transform.position));
+        Node toNode = PathFinder.instance.graphData.GetNode(FindNearNode(f));
+        if (!fromNode.isOpen)
         {
-            Debug.LogError("node is null");
+            foreach (Path path in PathFinder.instance.graphData.paths)
+            {
+                if (path.nodeA == fromNode || path.nodeB == fromNode)
+                    fromNode = path.nodeA == fromNode ? path.nodeB : null;
+            }
         }
-        PathFinder.instance.FindShortPathToPos(nearByNode, nearNode, 
-            delegate (List<Node> point)
+        if (fromNode == null)
+        {
+            while (fromNode == null)
+            {
+                int i = fromNode.NumberForNode % 18 == 0 ? fromNode.NumberForNode - 1 : fromNode.NumberForNode + 1;
+                fromNode = PathFinder.instance.graphData.GetNode(i);
+            }
+        } // 안되면 다시 생각 해보자. 이 클래스에서 비동기 메서드를 통한 방법 사용 가능
+        
+        
+        if (toNode == null)
+        {
+            Debug.LogError("Tonode is null");
+        }
+        PathFinder.instance.FindShortPathToPos(fromNode, toNode, 
+            (List<Node> point) =>
         {
             if (point == null)
             {
@@ -100,15 +122,14 @@ public class PathFollower : MonoBehaviour
                     Debug.LogError("Found null node in the path");
                     continue;
                 }
-
-                if (node == null)
-                {
-                    Debug.Log(node.Pos);
-                    pathToFollow.Add(node.Pos);
-                }
+                pathToFollow.Add(node.Pos); 
             }
-            pathToFollow.Add(f);
         });
+        pathToFollow.Add(f);
+
+        Debug.Log(pathToFollow.Count);
+        FollowContinuing();
+        //yield return null;
     }
     private void MoveTo(int i) => MoveTo(pathToFollow[i]);// node.numForNode로 접근할때
     public int FindNearNode(Vector3 dir)

@@ -46,20 +46,14 @@ public class PathFinderEditor : MonoBehaviour
 
                 nextPos = new Vector3(a, 0, b);
 
-                if (nodePositions.Contains(nextPos))
-                {
-                    continue;
-                }
+                if (nodePositions.Contains(nextPos)) continue;
 
                 Node newnode = new Node();
                 newnode.Pos = nextPos;
                 script.graphData.nodes.Add(newnode);
                 nodePositions.Add(nextPos);
 
-                if (Physics.SphereCast(nextPos, 0.5f, Vector3.up, out hit, Mathf.Infinity, Wall))
-                {
-                    newnode.isOpen = false;
-                }
+                if (Physics.SphereCast(nextPos, 0.5f, Vector3.up, out hit, Mathf.Infinity, Wall))  newnode.isOpen = false;
             }
         }
     }

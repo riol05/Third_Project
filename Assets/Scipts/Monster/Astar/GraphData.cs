@@ -49,7 +49,6 @@ public class Path
     public Node nodeB;
 
     public int NumberForPath = -1;
-    public bool isOneWay = false;
     public bool isOpen = true;
 }
 

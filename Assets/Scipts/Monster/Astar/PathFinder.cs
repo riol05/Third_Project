@@ -6,6 +6,7 @@ using System.Net;
 using System.Xml.Serialization;
 using Unity.VisualScripting;
 using Unity.XR.Oculus.Input;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.ShaderGraph.Drawing.Inspector.PropertyDrawers;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -59,22 +60,8 @@ public class PathFinder : MonoBehaviour
         }
         return nearNode != null ? nearNode.NumberForNode : -1;
     }
-    public void FindShortPathToPos(Node transformPosition,Node targetPosition, System.Action<List<Node>> callback)
-    {
-        Node nodeA = transformPosition;
-        
-        if(!nodeA.isOpen)
-        {
-            foreach (Path path in graphData.paths)
-            {
-                if(path.nodeA == nodeA || path.nodeB == nodeA) nodeA = path.nodeA == nodeA ? path.nodeB : path.nodeA;
-            }
-        }
-        else
-            FindShortPath(nodeA, targetPosition,callback);
-    }
-    private void FindShortPath(Node node, Node nNode , System.Action<List<Node>> callback) => StartCoroutine(FindShortestPath(node,nNode, callback));
-
+    public void FindShortPathToPos(Node transformPosition, Node targetPosition,
+        System.Action<List<Node>> callback)=> StartCoroutine(FindShortestPath(transformPosition,targetPosition, callback));
 
     protected IEnumerator FindShortestPath(Node fromNode, Node toNode , System.Action<List<Node>> callback)
     {
@@ -83,15 +70,26 @@ public class PathFinder : MonoBehaviour
         List<Node> nextNodes = new List<Node>();
         List<Node> finalPath = new List<Node>();
 
+        //if(!fromNode.isOpen)
+        //{
+        //    foreach(Path path in graphData.paths)
+        //    {
+        //        if(path.nodeA == fromNode || path.nodeB == fromNode)
+        //            fromNode = path.nodeA == fromNode ? path.nodeB : null;
+        //    }
+        //}
+        //if (fromNode == null)
+        //{
+        //    while (fromNode == null)
+        //    {
+        //        int i = fromNode.NumberForNode % 18 == 0 ? fromNode.NumberForNode - 1 : fromNode.NumberForNode + 1;
+        //        fromNode = graphData.GetNode(i);
+        //    }
+        //}
         fromNode.pDistance = 0;
         fromNode.hDistance = Vector3.Distance(fromNode.Pos, toNode.Pos);
         nextNodes.Add(fromNode);
         
-        foreach (var point in graphData.nodes)
-        {
-            point.hDistance = -1;
-            point.previousNode = null;
-        }
         while (true)
         {
             Node leastCostNode = null;
@@ -122,34 +120,39 @@ public class PathFinder : MonoBehaviour
                 yield break;
             }
             yield return null;
-            foreach (Path path in graphData.paths)
+            
+            foreach (Path path in graphData.paths) // 패스 확인
             {
-                if (path.nodeA == leastCostNode|| path.nodeB == leastCostNode)  if (!path.isOpen) continue;
-
-                Node otherNode = path.nodeA == leastCostNode? path.nodeB : path.nodeA;
-
-                otherNode.previousNode = null;
-                otherNode.pDistance = 0;
-                otherNode.hDistance = 0;
-
-                if (!otherNode.isOpen) continue;
-                if (completeNodes.Contains(otherNode)) continue;
-
-                if (otherNode.hDistance <= 0)
-                    otherNode.hDistance = Vector3.Distance(otherNode.Pos, toNode.Pos) + Vector3.Distance(otherNode.Pos, fromNode.Pos) ;
-                if (nextNodes.Contains(otherNode))
+                if (path.nodeA.NumberForNode == leastCostNode.NumberForNode
+                    || path.nodeB.NumberForNode == leastCostNode.NumberForNode)
                 {
-                    if (otherNode.pDistance >leastCostNode.pDistance)
+                    if (!path.isOpen) continue;
+
+                    Node otherNode = path.nodeA == leastCostNode ? path.nodeB : path.nodeA;
+
+                    otherNode.previousNode = null;
+                    otherNode.pDistance = 0;
+                    otherNode.hDistance = 0;
+
+                    if (!otherNode.isOpen) continue;
+                    if (completeNodes.Contains(otherNode)) continue;
+
+                    if (otherNode.hDistance <= 0)
+                        otherNode.hDistance = Vector3.Distance(otherNode.Pos, toNode.Pos) + Vector3.Distance(otherNode.Pos, fromNode.Pos);
+                    if (nextNodes.Contains(otherNode))
+                    {
+                        if (otherNode.pDistance > leastCostNode.pDistance)
+                        {
+                            otherNode.pDistance = leastCostNode.pDistance;
+                            otherNode.previousNode = leastCostNode;
+                        }
+                    }
+                    else
                     {
                         otherNode.pDistance = leastCostNode.pDistance;
                         otherNode.previousNode = leastCostNode;
+                        nextNodes.Add(otherNode);
                     }
-                }
-                else
-                {
-                    otherNode.pDistance= leastCostNode.pDistance;
-                    otherNode.previousNode = leastCostNode;
-                    nextNodes.Add(otherNode);
                 }
             }
             nextNodes.Remove(leastCostNode);

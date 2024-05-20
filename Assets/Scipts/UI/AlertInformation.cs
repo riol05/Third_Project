@@ -36,6 +36,7 @@ public class AlertInformation : MonoBehaviour
         while (alertString.TryDequeue(out s))
         {
             alertText.text = s;
+            yield return new WaitForSeconds(0.1f);
         }
         yield return new WaitForSeconds(showTime);
         this.gameObject.SetActive(false);
