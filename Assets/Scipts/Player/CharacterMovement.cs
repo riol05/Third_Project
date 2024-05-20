@@ -92,7 +92,7 @@ public class CharacterMovement : MonoBehaviour
         OnJump();
         if (isGround && !activeGrapple)
         {
-            rb.drag = 2;
+            rb.drag = 1;
         }
         else
             rb.drag = 0f;
@@ -200,7 +200,7 @@ public class CharacterMovement : MonoBehaviour
         }
         else
         {
-            if (CharacterInput.instance.jump) CharacterInput.instance.jump = false;
+            //if (CharacterInput.instance.jump) CharacterInput.instance.jump = false;
             if (!wall.wallRight && !wall.wallLeft)
             {
                 JumpTime = jumpCD;

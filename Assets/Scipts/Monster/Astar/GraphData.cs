@@ -10,12 +10,8 @@ public class Node
 {
     public Vector3 Pos;
     public void SetPosition(Vector3 dir) => Pos = dir;
-
-    public bool isOpen { get { return isopen; } }
     
-    
-    private bool isopen =true;
-    public void SetAsOpen(bool isopen) => this.isopen = isopen;
+    public bool isOpen = true;
 
     public int NumberForNode = -1;
     
@@ -24,11 +20,10 @@ public class Node
     [HideInInspector]
     public float pDistance;
     [HideInInspector]
-    public float CombineHDistance { get { return pDistance + hDistance; } }
+    public float CombinedDistance { get { return pDistance + hDistance; } }
     [HideInInspector]
-    public List<Node> previousNode;
+    public Node previousNode;
 
-    
 }
 
 [System.Serializable]
@@ -39,6 +34,11 @@ public class Path
         nodeB=b;
         nodeANum = a.NumberForNode;
         nodeBNum = b.NumberForNode;
+    }
+    public Path(int a, int b)
+    {
+        nodeANum= a;
+        nodeBNum= b;
     }
 
     public int nodeANum;
@@ -107,12 +107,8 @@ public class GraphData
     {
         if (nodes == null)
             return;
-        int maxId = 0;
 
-        //for (int i = 0; i < nodes.Count; i++)
-        //{
-        //    if (nodes[i].NumberForNode > maxId) maxId = nodes[i].NumberForNode;
-        //}
+        int maxId = 0;
         maxId = maxId + 1;
 
         for (int i = 0; i < nodes.Count; i++)
@@ -122,10 +118,6 @@ public class GraphData
      
         
         maxId = 0;
-        //for (int i = 0; i < paths.Count; i++)
-        //{
-        //    if (paths[i].NumberForPath > maxId) maxId = paths[i].NumberForPath;
-        //}
         maxId = maxId + 1;
 
         for(int i = 0;i < paths.Count; i++)

@@ -12,7 +12,7 @@ public class ObjectPoolingManager : MonoBehaviour
     }
     public DropItem SpawnItemDrop(DropItem item, Vector3 dir) => LeanPool.Spawn(item, dir, Quaternion.identity) ;
     public void DespawnItem(DropItem go) => LeanPool.Despawn(go);
-    public Monster SpawnMonster(Monster monster, Vector3 dir) => LeanPool.Spawn(monster,dir,Quaternion.identity);
+    public Monster SpawnMonster(Monster monster, Vector3 dir,Transform parent) => LeanPool.Spawn(monster,dir,Quaternion.identity,parent);
     public void DespawnMonster(Monster monster) => LeanPool.Despawn(monster);
     public Projectile SpawnBullet(Projectile bullet, Vector3 dir) => LeanPool.Spawn(bullet,dir, Quaternion.identity);
     public void DespawnBullet(Projectile bullet) => LeanPool.Despawn(bullet);

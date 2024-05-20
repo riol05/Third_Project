@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MonsterSpawner : MonoBehaviour
 {
@@ -32,18 +33,16 @@ public class MonsterSpawner : MonoBehaviour
     {
         for(int i = 0; i <=spawnMonster; ++i)
         {
-            Vector3 monsterStartPos = new Vector3(UnityEngine.Random.Range(-10, 10),1, UnityEngine.Random.Range(-10, 10));
+            Vector3 monsterStartPos = new Vector3(UnityEngine.Random.Range(-10, 10),1f, UnityEngine.Random.Range(-10, 10));
             monsterStartPos = transform.position + monsterStartPos;
             int r = UnityEngine.Random.Range(0, 3);
             if (r == 3)
             {
-                var monster = ObjectPoolingManager.Instance.SpawnMonster(eliteMonsterPrefab, monsterStartPos);
-                monster.GetComponent<Monster>().SetHome(this);
+                var monster = ObjectPoolingManager.Instance.SpawnMonster(eliteMonsterPrefab, monsterStartPos,transform);
             }
             else
             {
-                var monster = ObjectPoolingManager.Instance.SpawnMonster(CommonMonsterPrefab, monsterStartPos);
-                monster.GetComponent<Monster>().SetHome(this);
+                var monster = ObjectPoolingManager.Instance.SpawnMonster(CommonMonsterPrefab, monsterStartPos,transform);
             }
         }
         TotalMonster = spawnMonster;

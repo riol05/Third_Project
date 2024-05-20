@@ -17,8 +17,11 @@ public class AlertInformation : MonoBehaviour
     private Coroutine Routine;
     private Queue<string> alertString = new Queue<string>();
     //private StringBuilder builder = new StringBuilder();
+
     public void Alert(string s)
     {
+        if(alertText == null)
+            Debug.LogError("text null");
         alertString.Enqueue(s);
         if (!gameObject.activeSelf)
         { 
@@ -33,8 +36,8 @@ public class AlertInformation : MonoBehaviour
         while (alertString.TryDequeue(out s))
         {
             alertText.text = s;
-            yield return new WaitForSeconds(showTime);
         }
+        yield return new WaitForSeconds(showTime);
         this.gameObject.SetActive(false);
     }
 

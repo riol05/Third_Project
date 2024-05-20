@@ -1,8 +1,12 @@
+using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using System.Xml.XPath;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -17,118 +21,135 @@ public class PathFinderEditor : MonoBehaviour
     {
         script.graphData.RefreshSortedDictionary();
     }
-    //[ContextMenu("Hello")]
-    //public void Something()
-    //{
-    //    Vector3 nextPos;
-    //    for(int i = 0; i< 10; i++)
-    //    {
-    //        for(int j = 0; j < 10; j++)
-    //        {
-    //            nextPos = new Vector3(i, 0, j);
-    //            GameObject instance = Instantiate(node, nextPos, Quaternion.identity);
-    //            instance.transform.SetParent(transform);
-    //        }
-    //    }
-    //}
+
+
     [ContextMenu("Instantiate Node")]
     public void MakeNodeOnField()
     {
         Vector3 nextPos;
-        for (int i = 0;i < 50; i++)
+        HashSet<Vector3> nodePositions = new HashSet<Vector3>();
+
+        if (script.graphData.nodes != null)
         {
-            for(int j = 0;j < 68;j++)
+            foreach (Node node in script.graphData.nodes)
             {
-                int a = 600 - 25 * i;
-                int b = 330 - j * 18;
+                nodePositions.Add(node.Pos);
+            }
+        }
+
+        for (int i = 0; i < 23; i++)
+        {
+            for (int j = 0; j < 18; j++)
+            {
+                int a = 600 - 50 * i;
+                int b = 330 - j * 50;
 
                 nextPos = new Vector3(a, 0, b);
-                bool isExist = false;
-                foreach (Node node in script.graphData.nodes)
-                {
-                    if (node.Pos == nextPos)
-                    {
-                        isExist = true;
-                        break;
-                    }
-                }
-                if(isExist)
+
+                if (nodePositions.Contains(nextPos))
                 {
                     continue;
                 }
-                
+
                 Node newnode = new Node();
                 newnode.Pos = nextPos;
                 script.graphData.nodes.Add(newnode);
-                
+                nodePositions.Add(nextPos);
+
                 if (Physics.SphereCast(nextPos, 0.5f, Vector3.up, out hit, Mathf.Infinity, Wall))
                 {
-                    newnode.SetAsOpen(false);
+                    newnode.isOpen = false;
                 }
             }
         }
     }
-    [ContextMenu("Instantiate Path")]
-    public void MakePathOnField()
+
+    //public string s;
+    [ContextMenu("Make Path And Get Neighbor Node")] // path instantiate
+    public void MakePathAndNeighborNode()
     {
-        Node nodea;
-        Node nodeb;
-        for (int i = 0; i < 50; i++)
+        var nodes = script.graphData.nodes;
+        if (nodes == null || nodes.Count == 0)
         {
-            for (int j = 0; j < 68; j++)
+            Debug.LogError("Nodes list is null or empty.");
+            return;
+        }
+
+        int width = 18;
+        int height = nodes.Count / width;
+
+        ConcurrentDictionary<Path, bool> pathHash = new ConcurrentDictionary<Path, bool>();
+        ConcurrentBag<Path> newPaths = new ConcurrentBag<Path>();
+
+        Parallel.For(0, height, y =>
+        {
+            for (int x = 0; x < width; x++)
             {
-                if (i == j) continue;
-                if (script.graphData.nodes[i] == null || script.graphData.nodes[j] == null) continue;
-                nodea = script.graphData.nodes[i];
-                foreach (Node node in script.graphData.nodes[i].previousNode)
+                int index = y * width + x;
+                if (index >= nodes.Count)
                 {
-                    nodeb = node;
-                    if (!nodea.isOpen || !nodeb.isOpen) continue;
+                    Debug.LogError($"Index out of range: {index}");
+                    continue;
+                }
 
-                    bool isExist = false;
-                    foreach (Path path in script.graphData.paths)
+                Node node = nodes[index];
+                if (!node.isOpen) continue;
+
+                List<Node> nodelist = new List<Node>();
+                if (x > 0) nodelist.Add(nodes[index - 1]); // 왼쪽
+                if (x < width - 1) nodelist.Add(nodes[index + 1]); // 오른쪽
+                if (y > 0) nodelist.Add(nodes[index - width]); // 위
+                if (y < height - 1) nodelist.Add(nodes[index + width]); // 아래
+                //if(index == 0)
+                //s = $"{nodelist[0].NumberForNode},{nodelist[1].NumberForNode},";
+                foreach (Node neighbor in nodelist)
+                {
+                    if (!neighbor.isOpen) continue;
+
+                    Path newpath = new Path(node, neighbor);
+                    Path reversePath = new Path(neighbor, node);
+                    //s = $"{node.NumberForNode}, {neighbor.NumberForNode}";
+                    if (!pathHash.ContainsKey(newpath) && !pathHash.ContainsKey(reversePath))
                     {
-                        if ((path.nodeA == nodea && path.nodeB == nodeb) || (path.nodeA == nodeb && path.nodeB == nodea))
-                        {
-                            isExist = true;
-                            break;
-                        }
+                        pathHash[newpath] = true;
+                        //newPaths.Add(newpath);
+                        script.graphData.paths.Add(newpath);
                     }
-                    if (isExist) continue;
-
-                    Vector3 direction = (nodea.Pos - nodeb.Pos).normalized;
-                    float distance = Vector3.Distance(nodea.Pos, nodeb.Pos);
-                    if (Physics.Raycast(nodea.Pos, direction, out hit, distance, Wall))
-                    {
-                        continue;
-                    }
-
-                    Path newpath = new Path(nodea, nodeb);
-                    script.graphData.paths.Add(newpath);
                 }
             }
-        }
+        });
     }
-    [ContextMenu("Get Neighbor Node")]
-    public void GetNeighborNode()
+    [ContextMenu("Path Check")]
+    public void PathCheck()
     {
-        foreach (Node node in script.graphData.nodes)
+        foreach (Path path in script.graphData.paths)
         {
-            foreach (Node _node in script.graphData.nodes)
-            {
-            }
+            Vector3 direction = path.nodeA.Pos - path.nodeB.Pos;
+            float distance = direction.magnitude;
+            direction.Normalize();
+            if (!Physics.Raycast(path.nodeB.Pos, direction, distance))
+                path.isOpen = true;
+            else
+                path.isOpen = false;
         }
     }
-
     [ContextMenu("reset  Node")]
     public void resetNode()
     {
         script.graphData.nodes.Clear();
+        script.graphData.nodeSorted.Clear();
     }
     [ContextMenu("reset  Path")]
     public void resetPath()
     {
         script.graphData.paths.Clear();
+        script.graphData.PathSorted.Clear();
+    }
+    [ContextMenu("Get Sorted")]
+    public void GetDictionary()
+    {
+        script.graphData.nodeSorted.Clear();
+        script.graphData.PathSorted.Clear();
     }
     private void OnDrawGizmos()
     {
@@ -151,11 +172,20 @@ public class PathFinderEditor : MonoBehaviour
                     Gizmos.color = Color.blue;
                     Gizmos.DrawSphere(node.Pos, script.graphData.nodeSize);
                 }
+                Handles.Label(node.Pos + Vector3.up * script.graphData.nodeSize, $"Node {node.NumberForNode -1}");
             }
             foreach (Path path in script.graphData.paths)
             {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(script.graphData.nodes[path.nodeANum].Pos, script.graphData.nodes[path.nodeBNum].Pos);
+                if (path.isOpen)
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawLine(path.nodeA.Pos, path.nodeB.Pos);
+                }
+                else
+                {
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawLine(path.nodeA.Pos, path.nodeB.Pos);
+                }
             }
         }
     }

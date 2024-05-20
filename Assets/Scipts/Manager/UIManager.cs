@@ -11,7 +11,11 @@ public class UIManager : MonoBehaviour
     public GetItemInformation Item;
     private void Awake()
     {
-        if(instance != null)
         instance = this;
+    }
+    public void alertShow(string s)
+    {
+        alert.gameObject.SetActive(true);
+        alert.Alert(s);
     }
 }
