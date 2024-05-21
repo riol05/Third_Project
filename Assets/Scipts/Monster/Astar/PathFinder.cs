@@ -31,16 +31,6 @@ public class PathFinder : MonoBehaviour
     {
         graphData.RefreshSortedDictionary();
     }
-    //public void AblePath(Path path)
-    //{
-    //    if (path == null)
-    //    {
-    //        Debug.LogError(path +" (Path) not Found");
-    //        return;
-    //    }
-    //    if(!path.isOpen) return;
-
-    //}
 
     public int FindNearNode(Vector3 dir)
     {

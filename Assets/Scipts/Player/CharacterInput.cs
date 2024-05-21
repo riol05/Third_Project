@@ -47,6 +47,15 @@ public class CharacterInput : MonoBehaviour
         if (freeze) return;
         MoveInput(value.Get<Vector2>());
     }
+    public void OnAttack(InputValue value)
+    {
+        if(freeze) return;
+        Attackinput(value.isPressed);
+    }
+    private void Attackinput(bool ison)
+    {
+        attack = ison;
+    }
     public void OnLook(InputValue value)
     {
         if (freeze) return;
@@ -78,17 +87,6 @@ public class CharacterInput : MonoBehaviour
     public void OnGetItem(InputValue Value) // inputsystem에 키 지정 z키
     {
         GetItemInput(Value.isPressed);
-    }
-
-    public void OnAttack(InputValue value)
-    {
-        if (freeze) return;
-        Attack(value.isPressed);
-    }
-
-    private void Attack(bool ison)
-    {
-        attack = ison;
     }
     private void ScrollInput(float f)
     {

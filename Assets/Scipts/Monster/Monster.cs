@@ -7,8 +7,9 @@ using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.XR.Haptics;
-
+using Random = UnityEngine.Random;
 public enum MonsterState
 {
     Idle,
@@ -81,15 +82,10 @@ public class Monster : MonoBehaviour, IDamageable
             {MonsterState.Hit, Hit },
         };
     }
-    public void SetHome(MonsterSpawner home)
-    {
-        Home = home;
-    }
     private void OnEnable()
     {
         stateMon = MonsterState.Idle;
         Home = transform.parent.GetComponent<MonsterSpawner>();
-        pathFollow.target = Home.transform;
         StartCoroutine(UpdateStateMachine()); // 상태 머신
         //pathFollow.Follow(Home.transform.position, moveSpeed);
     }
@@ -111,35 +107,32 @@ public class Monster : MonoBehaviour, IDamageable
                 if (idleCd < 0)
                 {
                     idleCd = IdleTime;
-                    stateMon = MonsterState.Patrol;
-                    StateMachineDic[stateMon]?.Invoke();
+                    ChangeState(MonsterState.Patrol);
+
                     yield return null;
                     continue;
                 }
             }
             else idleCd = IdleTime;
 
-            if (Vector3.Distance(Home.transform.position,transform.position) > 50) stateMon = MonsterState.BackHome;
+            //if (Vector3.Distance(Home.transform.position,transform.position) > 50) stateMon = MonsterState.BackHome;
             print(stateMon);
             
-            if (stateMon == MonsterState.BackHome) 
-            {
-                BackHome();
-                yield return null;
-                continue;
-            }
-            else
+            //if (stateMon == MonsterState.BackHome) 
+            //{
+            //    ChangeState(MonsterState.BackHome);
+            //    yield return null;
+            //    continue;
+            //}
+            //else
             {
                 if (typeMONSTER == MonsterType.Common)
                 {
-                    if (Physics.SphereCast(transform.position, 0.5f, transform.forward, out hitPlayer, playerLayer))
+                    if (Physics.SphereCast(transform.position, 2f, transform.forward, out hitPlayer, playerLayer))
                         stateMon = MonsterState.Attack;
                     else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
                         stateMon = MonsterState.Chase;
-                    else
-                    {
-                        stateMon = MonsterState.Idle;
-                    }
+                    else stateMon = MonsterState.Idle;
                 }
                 else if (typeMONSTER == MonsterType.Elite)
                 {
@@ -175,7 +168,6 @@ public class Monster : MonoBehaviour, IDamageable
             pathFollow.Follow(dirPos, Speed);
         prevState = MonsterState.Idle;
     }
-
     private void BackHome()
     {
         curHp = fullHp;
@@ -211,17 +203,19 @@ public class Monster : MonoBehaviour, IDamageable
         if (!patrolStart)
         {
             patrolStart = true;
-            Vector3 vec = new Vector3(UnityEngine.Random.Range(-5, 5), 0, UnityEngine.Random.Range(-5, 5));
-            dirPos = transform.position + vec;
+            int i = pathFollow.FindNearNode(transform.position);
+            i -= Random.Range(0, 2);
+            i = Mathf.Clamp(i, 0, PathFinder.instance.graphData.nodes.Count - 1);
+            Vector3 vec = PathFinder.instance.graphData.GetNode(i).Pos;
+            Debug.Log("patrol node Pos" + vec);
+            dirPos = vec;
         }
         if (stateMon != prevState)
+        { 
             pathFollow.Follow(dirPos, Speed);
-        if(pathFollow.isCloseDir())
-        {
-            stateMon = MonsterState.Idle;
-
+            prevState = MonsterState.Patrol;
         }
-        prevState = MonsterState.Patrol;
+        if(pathFollow.isCloseDir())stateMon = MonsterState.Idle;
     }
     private void Hit()
     {
@@ -237,7 +231,6 @@ public class Monster : MonoBehaviour, IDamageable
         }
         StartCoroutine(AttackCollider(0.5f));
     }
-
     private void ShotProjectile(int i) // 
     {
         var player = hitPlayer.transform.GetComponent<PlayerInteractInput>();// 플레이어 공격
@@ -258,33 +251,28 @@ public class Monster : MonoBehaviour, IDamageable
 
         if(typeMONSTER == MonsterType.Common)
         {
-            if (Physics.SphereCast(transform.position, 2f, transform.forward, out hit))
-            {
-                //RaycastHit[] hits = Physics.SphereCastAll(transform.position, 2f, transform.forward, 0f,monsterMask);
-                ACollider.gameObject.SetActive(true);
-                yield return new WaitForSeconds(0.2f);
+            ACollider.gameObject.SetActive(true);
+            yield return new WaitForSeconds(0.2f);
 
-                if (ACollider.targets.Count > 0)
+            if (ACollider.targets.Count > 0)
+            {
+                Transform t;
+                while (ACollider.targets.TryDequeue(out t))
                 {
-                    Transform t;
-                    while (ACollider.targets.TryDequeue(out t))
-                    {
-                        PlayerInteractInput player = t.GetComponent<PlayerInteractInput>();
-                        //if (player != null) GiveDamage(damage, player);
+                    PlayerInteractInput player = t.GetComponent<PlayerInteractInput>();
+                    //if (player != null) GiveDamage(damage, player);
 
-                        //else throw new NullReferenceException("monster component is not there");
-                    }
+                    //else throw new NullReferenceException("monster component is not there");
                 }
-                ACollider.gameObject.SetActive(false);
             }
-            else
-            {
-                ShotProjectile(damage);
-            }
-
-            stateMon = MonsterState.Chase;
-                yield return null;
+            ACollider.gameObject.SetActive(false);
         }
+        else
+        {
+            ShotProjectile(damage);
+        }
+        stateMon = MonsterState.Chase;
+        yield return null;
     }
     public void Die()
     {
@@ -322,5 +310,10 @@ public class Monster : MonoBehaviour, IDamageable
     public void GiveDamage(int i)
     {
         throw new NotImplementedException();
+    }
+    public void ChangeState(MonsterState curState)
+    {
+        stateMon = curState;
+        StateMachineDic[stateMon]?.Invoke();
     }
 }

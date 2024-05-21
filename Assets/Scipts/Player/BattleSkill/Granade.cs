@@ -4,25 +4,44 @@ using UnityEngine;
 
 public class Granade : MonoBehaviour, ISkillAble
 {
-    
-
-    public void Damage()
+    float Cd;
+    float Tcd;
+    bool isOn;
+    int damage = 10;
+    RaycastHit[] hits;
+    LayerMask MonsterMask;
+    public void Damage() 
     {
-        throw new System.NotImplementedException();
+        hits = Physics.SphereCastAll(transform.position, 4f, Vector3.up, 0, MonsterMask);
+        foreach(RaycastHit hit in hits)
+        {
+            if(!hit.collider.GetComponent<Monster>()) continue;
+
+            hit.collider.GetComponent<Monster>().GetDamage(damage);
+        }
     }
 
     public void isCoolDownNow()
     {
-        throw new System.NotImplementedException();
+        Cd -= Time.deltaTime;
+        if (Cd < 0)
+        {
+            isOn = true;
+            SkillReady();
+        }
     }
 
+    private void Update()
+    {
+        if (isOn)
+            SkillActivate();
+    }
     public void SkillActivate()
     {
-        throw new System.NotImplementedException();
+        //transform.position = 
     }
 
     public void SkillReady()
     {
-        throw new System.NotImplementedException();
     }
 }

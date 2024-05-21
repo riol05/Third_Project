@@ -4,9 +4,22 @@ using UnityEngine;
 
 public class WebGranade : MonoBehaviour, ISkillAble
 {
+    float Cd;
+    float Tcd;
+    bool isOn;
+    int damage = 10;
+    RaycastHit[] hits;
+    LayerMask MonsterMask;
     public void Damage()
     {
-        throw new System.NotImplementedException();
+        hits = Physics.SphereCastAll(transform.position, 8f, Vector3.up, 0, MonsterMask);
+        foreach (RaycastHit hit in hits)
+        {
+            if (!hit.collider.GetComponent<Monster>()) continue;
+
+            hit.collider.GetComponent<Monster>().GetDamage(damage);
+            //hit.collider.transform.position = ; // hit posiiton À» transform.pos·Î ¿Å°Ü¿È
+        }
     }
 
     public void isCoolDownNow()

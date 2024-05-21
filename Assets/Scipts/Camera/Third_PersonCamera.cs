@@ -32,7 +32,6 @@ public class Third_PersonCamera : MonoBehaviour
     }
     private void Start()
     {
-        
         cinemachineTargetYaw = targetCinemachine.transform.rotation.eulerAngles.y;
     }
 

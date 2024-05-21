@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+using Random = UnityEngine.Random;
 public class MonsterSpawner : MonoBehaviour
 {
     public Vector3[] SpawnPos;
@@ -33,8 +33,18 @@ public class MonsterSpawner : MonoBehaviour
     {
         for(int i = 0; i <=spawnMonster; ++i)
         {
-            Vector3 monsterStartPos = new Vector3(UnityEngine.Random.Range(-10, 10),1f, UnityEngine.Random.Range(-10, 10));
-            monsterStartPos = transform.position + monsterStartPos;
+            int k = Random.Range(3, 17);
+            int l = Random.Range(3, 20) * 18;
+            Node node = PathFinder.instance.graphData.GetNode(k + l);
+            if (!node.isOpen)
+            {
+                while (!node.isOpen)
+                {
+                    node = PathFinder.instance.graphData.GetNode(node.NumberForNode - 1);
+                }
+            }
+            Vector3 monsterStartPos = node.Pos +new Vector3(0,0.5f,0); // node에 풀어놓는다.
+            
             int r = UnityEngine.Random.Range(0, 3);
             if (r == 3)
             {

@@ -28,8 +28,7 @@ public class CharacterMovement : MonoBehaviour
     [HideInInspector]
     public Rigidbody rb;
 
-    [SerializeField]
-    private Animator ani;
+    public Animator ani;
 
     private StatePlayer curState;
 
@@ -88,6 +87,7 @@ public class CharacterMovement : MonoBehaviour
     {
         isGround =checkGround.GroundedCheck();
         
+        
         Move();
         OnJump();
         if (isGround && !activeGrapple)
@@ -134,15 +134,8 @@ public class CharacterMovement : MonoBehaviour
 
         float targetSpeed = CharacterInput.instance.sprint ? sprintSpeed : moveSpeed;
         if (CharacterInput.instance.move == Vector2.zero) targetSpeed = 0f;
-        float inputMagnitude = CharacterInput.instance.analogMovement ? CharacterInput.instance.move.magnitude : 1f;
-        if(CharacterInput.instance.move.y < 0)
-        {
-            targetSpeed = targetSpeed * 0.5f;
-        }
-        else if(CharacterInput.instance.move.y == 0)
-        {
-            targetSpeed = targetSpeed * 0.7f;
-        }
+        if(CharacterInput.instance.move.y < 0) targetSpeed = targetSpeed * 0.5f;
+        else if(CharacterInput.instance.move.y == 0) targetSpeed = targetSpeed * 0.7f;
         speed = targetSpeed;
         aniBlend = CharacterInput.instance.move;
 
@@ -162,7 +155,6 @@ public class CharacterMovement : MonoBehaviour
 
         else if (checkObject.SlopeCheck() || isGround )
         {
-            
             float accelSpeed = checkObject.SlopeCheck() ? 1.5f : 2f;
             rb.AddForce(inputDir.normalized * speed * accelSpeed, ForceMode.Force);
         }
@@ -210,7 +202,7 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
-    private void FreezeStop()
+    public void FreezeStop()
     {
         CharacterInput.instance.freeze = false;
     }
@@ -263,4 +255,5 @@ public class CharacterMovement : MonoBehaviour
         }
         grap.StopGrapple();
     }
+
 }

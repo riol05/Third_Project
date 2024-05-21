@@ -24,9 +24,9 @@ public class Projectile : MonoBehaviour
     }
     private void Update()
     {
-        transform.position = Vector3.forward * speed * Time.deltaTime;
+        transform.position = transform.forward * speed * Time.deltaTime;
         
-        if(Physics.Raycast(transform.position,Vector3.forward,out hit, 0.1f,target))
+        if(Physics.Raycast(transform.position,transform.forward,out hit, 0.1f,target))
         {
             hit.transform.GetComponent<IDamageable>().GiveDamage(damage); // TODO : 투사체 대미지
             DestroyBullet();

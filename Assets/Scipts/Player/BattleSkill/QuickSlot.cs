@@ -18,15 +18,9 @@ public class QuickSlot : MonoBehaviour, IPointerClickHandler, IDragHandler, IEnd
         set
         {
             Item = value;
-            if (item != null)
-            {
-                image.color = new Color(1, 1, 1, 1);
-            }
-            else
-            {
-                image.color = new Color(1, 1, 1, 0);
+            if (item != null) image.color = new Color(1, 1, 1, 1);
+            else image.color = new Color(1, 1, 1, 0);
                 //CountImage.SetActive(false);
-            }
         }
     }
 

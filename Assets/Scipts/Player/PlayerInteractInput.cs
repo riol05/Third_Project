@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.InputSystem.XR.Haptics;
 
-public class PlayerInteractInput : MonoBehaviour
+public class PlayerInteractInput : MonoBehaviour, IDamageable
 {
     private CharacterMovement playerMove;
     public LayerMask ItemMask;
@@ -19,46 +20,30 @@ public class PlayerInteractInput : MonoBehaviour
         if(CharacterInput.instance.attack)
         {
             if (playerMove.attackAble)
-            {
                 Attack();
-            }
+            else
+                CharacterInput.instance.attack = false;
         }
     }
 
-    //public void Interact()
-    //{
-    //    RaycastHit[] InteractThing = Physics.SphereCastAll(transform.position, 3f, Vector3.zero);
-    //    if (InteractThing != null)
-    //    {
-    //        foreach (RaycastHit cast in InteractThing)
-    //        {
-    //            if (cast.transform.GetComponent<DropItem>())
-    //            {
-    //                // DropItem UI 생성 함수
-    //                // cast.transform.Getcomponent<DropItem(). ui생성()
-    //                return;
-    //            }
-    //            //if(cast.transform.GetComponent<NPC>()) // NPC 일경우
-    //            //{
-    //            //    NPC 접근 UI 생성
-    //            //    return;
-    //            //}
-    //        }
-    //    }
-    //    else
-    //    {
-    //        return;
-    //    }
-    //} // 상호작용 EX
-
     bool isComboNow;
+    Coroutine Attackroutine = null;
     public void Attack()
+    {
+        Attackroutine = StartCoroutine(AttackRoutine());
+    }
+    IEnumerator AttackRoutine()
     {
         CharacterInput.instance.attack = false;
         isAttack = true;
         attackCombo++;
         if (playerMove.isground)// 지상공격
         {
+            attackCombo = Mathf.Clamp(attackCombo,0,3);
+            if(attackCombo == 3)
+            {
+                attackCombo = 0;
+            }
             if(isComboNow)
             switch (attackCombo)
             {
@@ -66,27 +51,33 @@ public class PlayerInteractInput : MonoBehaviour
                     attackTimeCD = 0.3f;
                     // TODO : 캐릭터 move에서addforce로 움직임  메서드를 가져와야할듯??
                     StartCoroutine(attackColliderOnOff(0.1f));
-                    // TODO :  animation blend로 animation 제어? 가능?
-                    break;
+                    playerMove.ani.SetTrigger("Attack1");
+                        yield return null;
+
+                        break;
                 case 1:
                     attackTimeCD = 0.3f;
                     StartCoroutine(attackColliderOnOff(0.1f));
-                    break;
+                    playerMove.ani.SetTrigger("Attack2");
+                        yield return null;
+
+                        break;
                 case 2:
-                    attackTimeCD = 0.3f;
-                    StartCoroutine(attackColliderOnOff(0.1f));
-                    break;
-                case 3:
-                    attackTimeCD = 0.4f;
-                    StartCoroutine(attackColliderOnOff(0.2f));
-                    break;
-                case 4:
                     attackTimeCD = 0.6f;
                     StartCoroutine(attackColliderOnOff(0.4f));
-                    break;
+                    playerMove.ani.SetTrigger("Attack3");
+                        yield return null;
+                        break;
                 default: break;
+                        
             }
         }
+        else
+        {
+
+        }
+        Attackroutine = null;
+        yield return null;
     }
     public bool isAttack;
     public int attackCombo;
@@ -105,11 +96,9 @@ public class PlayerInteractInput : MonoBehaviour
             attackTime = attackTimeCD;
             exitAttackTime = exitAttackTimeCD;
         }
-
         if (attackTime > 0 )
-        {
             attackTime -= Time.deltaTime;
-        }
+
         else if (attackTime <= 0)
         {
             exitAttackTime -= Time.deltaTime;
@@ -123,7 +112,9 @@ public class PlayerInteractInput : MonoBehaviour
     }
 
     public AttackCollider ACollider;
-    public int damage;
+    
+    [SerializeField]
+    private int damage;
     IEnumerator attackColliderOnOff(float f)
     {
         RaycastHit hit;
@@ -142,13 +133,48 @@ public class PlayerInteractInput : MonoBehaviour
                 {
                     Monster monster = t.GetComponent<Monster>();
                     if (monster != null)  monster.GetDamage(damage);
-                    
-                    else    throw new NullReferenceException("monster component is not there");
+                    else   throw new NullReferenceException("monster component is not there");
                 }
             }
             ACollider.gameObject.SetActive(false);
             CharacterInput.instance.freeze = false;
         }
         yield return null;
+    }
+
+
+    public int FullHp;
+    private int curHp;
+    public void GetDamage(int i)
+    {
+        curHp -= i;
+        if (curHp <= 0) Death();
+
+        playerMove.ani.SetTrigger("Hit");
+        // 데미지 관련
+        StartCoroutine(HitRoutine());
+    }
+    public void Death()
+    {
+        playerMove.ani.SetTrigger("Death");
+        playerMove.freeze = true;
+        GameManager.Instance.GameOver();
+    }
+
+    public void GiveDamage(int i, Monster monster)
+    {
+        monster.GetDamage(damage);
+    }
+
+    IEnumerator HitRoutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        yield return null;
+        playerMove.FreezeStop();
+    }
+
+    public void GiveDamage(int i)
+    {
+        throw new NotImplementedException();
     }
 }

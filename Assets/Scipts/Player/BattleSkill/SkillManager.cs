@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class SkillManager : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class SkillManager : MonoBehaviour
     [SerializeField]
     private GameObject slotParent;
 
+    //[SerializeField]
+    //private Sprite SlotImage { set { FirstSlot.item.icon } }
     private void Awake()
     {
         instance = this;

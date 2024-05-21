@@ -18,4 +18,9 @@ public class UIManager : MonoBehaviour
         alert.gameObject.SetActive(true);
         alert.Alert(s);
     }
+
+    public void GameOver()
+    {
+
+    }
 }

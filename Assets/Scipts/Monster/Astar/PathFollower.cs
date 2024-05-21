@@ -23,7 +23,6 @@ public class PathFollower : MonoBehaviour
 
 
     public LayerMask groundMask;
-    public Transform target;
     private List<Vector3> pathToFollow =new List<Vector3>();
     private int currentIndex;
     private Vector3 LastDir;
@@ -41,9 +40,10 @@ public class PathFollower : MonoBehaviour
     public void Follow(Vector3 dir, float MoveSpeed)
     {
         stopFollow();
+        pathToFollow = null; // 제대로 안가면 이코드일듯
+        currentIndex = 0;
         GetNodeToPositionList(dir);
         speed = MoveSpeed;
-        currentIndex = 0;
     }
 
     public void stopFollow() => StopAllCoroutines();
