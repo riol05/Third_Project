@@ -90,8 +90,8 @@ public class Monster : MonoBehaviour, IDamageable
         stateMon = MonsterState.Idle;
         Home = transform.parent.GetComponent<MonsterSpawner>();
         pathFollow.target = Home.transform;
-        //StartCoroutine(UpdateStateMachine()); // 상태 머신
-        pathFollow.Follow(Home.transform.position, moveSpeed);
+        StartCoroutine(UpdateStateMachine()); // 상태 머신
+        //pathFollow.Follow(Home.transform.position, moveSpeed);
     }
     
     float IdleTime = 3f;
@@ -100,24 +100,32 @@ public class Monster : MonoBehaviour, IDamageable
     {
         while (stateMon != MonsterState.Die)
         {
-            if(stateMon == MonsterState.Idle)
+            if (stateMon != MonsterState.Patrol && patrolStart) patrolStart = false;
+            if (patrolStart)
+                stateMon = MonsterState.Patrol;
+
+            if (stateMon == MonsterState.Idle)
             {
-                if(idleCd >0) idleCd -= Time.deltaTime;
+                Idle();
+                if (idleCd >0) idleCd -= Time.deltaTime;
                 if (idleCd < 0)
                 {
                     idleCd = IdleTime;
                     stateMon = MonsterState.Patrol;
+                    StateMachineDic[stateMon]?.Invoke();
+                    yield return null;
                     continue;
                 }
             }
             else idleCd = IdleTime;
+
             if (Vector3.Distance(Home.transform.position,transform.position) > 50) stateMon = MonsterState.BackHome;
             print(stateMon);
-            if (stateMon != MonsterState.Patrol) patrolStart = false;
             
             if (stateMon == MonsterState.BackHome) 
             {
                 BackHome();
+                yield return null;
                 continue;
             }
             else
@@ -128,7 +136,10 @@ public class Monster : MonoBehaviour, IDamageable
                         stateMon = MonsterState.Attack;
                     else if (Physics.SphereCast(transform.position, 5f, transform.forward, out hitPlayer, playerLayer))
                         stateMon = MonsterState.Chase;
-                    else stateMon = MonsterState.Idle;
+                    else
+                    {
+                        stateMon = MonsterState.Idle;
+                    }
                 }
                 else if (typeMONSTER == MonsterType.Elite)
                 {
@@ -143,9 +154,6 @@ public class Monster : MonoBehaviour, IDamageable
             //anim.SetInteger("MonsterState",(int)stateMon); // TODO : 몬스터 애니메이션 만들자
 
             yield return null;
-
-            if (stateMon == prevState) continue;
-            yield return null;
         }
         if (stateMon == MonsterState.Die)
         {
@@ -153,9 +161,9 @@ public class Monster : MonoBehaviour, IDamageable
             transform.rotation = Quaternion.identity;
 
             yield return new WaitForSeconds(3f);
-            ObjectPoolingManager.Instance.DespawnMonster(this);
+            ObjectPoolingManager.Instance.DespawnMonster(this.transform.GetComponent<Monster>());
         }
-        anim.SetInteger("MonsterState", (int)stateMon); // TODO : 몬스터 애니메이션 만들자
+        //anim.SetInteger("MonsterState", (int)stateMon);
         StateMachineDic[stateMon]?.Invoke();
         yield return null;
     }
@@ -163,40 +171,38 @@ public class Monster : MonoBehaviour, IDamageable
     private void Idle()
     {
         dirPos = transform.position;
-        pathFollow.stopFollow();
+        if (stateMon != prevState)
+            pathFollow.Follow(dirPos, Speed);
         prevState = MonsterState.Idle;
     }
 
     private void BackHome()
     {
-        Speed = comeBackSpeed;
         curHp = fullHp;
-        dirPos = Home.transform.position;
         if (stateMon != prevState)
-            pathFollow.Follow(dirPos, Speed);
-
-        prevState = MonsterState.BackHome;
+        {
+            dirPos = Home.transform.position;
+            Move(comeBackSpeed, dirPos);
+            prevState = MonsterState.BackHome;
+        }
 
         if (pathFollow.isCloseDir())
-        {
             stateMon = MonsterState.Idle;
-        }
     }
     static float chaseTCD = 3f;
     float chaseCD = 0;
     private void Chase()
     {
-        dirPos = hitPlayer.transform.GetComponent<PlayerInteractInput>().transform.position;
-        Speed = moveSpeed;
         chaseCD -= Time.deltaTime;
         if (stateMon != prevState || chaseCD <= 0)
         {
+            Speed = moveSpeed;
+            dirPos = hitPlayer.transform.GetComponent<PlayerInteractInput>().transform.position;
             chaseCD = chaseTCD;
             Debug.Log("Chasenow");
             pathFollow.Follow(dirPos, Speed);
+            prevState = MonsterState.Chase;
         }
-
-        prevState = MonsterState.Chase;
     }
 
     private void Patrol()
@@ -294,6 +300,12 @@ public class Monster : MonoBehaviour, IDamageable
         
     }
     
+    public void Move(float speed, Vector3 pos)
+    {
+        Speed = comeBackSpeed;
+        dirPos = pos;
+        pathFollow.Follow(dirPos, Speed);
+    }
 
     public void GetDamage(int i)
     {

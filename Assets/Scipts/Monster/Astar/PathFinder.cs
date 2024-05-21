@@ -19,7 +19,6 @@ public class PathFinder : MonoBehaviour
 
     private bool wayToElevator;
 
-    Elevator[] elevators;
     Dictionary<float, Transform> wayToPathDic;
 
     public GraphData graphData = new GraphData();

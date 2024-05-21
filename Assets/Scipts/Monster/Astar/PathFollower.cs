@@ -8,6 +8,7 @@ using TreeEditor;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.Rendering;
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
@@ -15,23 +16,22 @@ using UnityEngine.UIElements;
 public class PathFollower : MonoBehaviour
 {
     private float speed;
-    //private Vector3 CastToVector(System.Object ob) { if (ob is Vector3 vec) return vec; Debug.Assert(false, "CastVector3 fail"); return Vector3.zero; }
-    //private Node CastToNode(System.Object ob) { if (ob is Node node) return node; Debug.Assert(false, "CastNodeFail"); return null; }
-    private  bool IsOnPoint(int pointIndex) { return (transform.position - pathToFollow[pointIndex]).sqrMagnitude < 0.1f; }
+    private  bool IsOnPoint(int pointIndex) { return (transform.position - pathToFollow[pointIndex]).sqrMagnitude < 5f; }
     private bool isEndPoint(int pointIndex) { return pointIndex == EndIndex(); }
-    private int EndIndex() { return pathToFollow.Count - 1; } // -1
-    private int GetNextIndex(int curIndex) { int NextIndex = -1 ; if (curIndex < EndIndex()) NextIndex = curIndex + 1; return NextIndex; }
+    private int EndIndex() { return pathToFollow.Count -1; } // -1
+    private int GetNextIndex(int currentIndex) { int nextIndex = -1; if (currentIndex < EndIndex()) nextIndex = currentIndex + 1; return nextIndex; }
 
+
+    public LayerMask groundMask;
     public Transform target;
     private List<Vector3> pathToFollow =new List<Vector3>();
     private int currentIndex;
+    private Vector3 LastDir;
     public bool isCloseDir()
     {
-        if (pathToFollow.Count == 0)
-        {
-            
-            return true;
-        }
+        if (pathToFollow == null) return true;
+
+        if (pathToFollow.Count == 0) return true;
 
         if (IsOnPoint(EndIndex()) ) return true;
         
@@ -47,44 +47,62 @@ public class PathFollower : MonoBehaviour
     }
 
     public void stopFollow() => StopAllCoroutines();
-
     public void FollowContinuing() => StartCoroutine(FollowPath());
     IEnumerator FollowPath()
     {
         yield return null;
-        while (!isEndPoint(currentIndex))// true
+        print(EndIndex());
+        while (true)// true
         {
-            currentIndex = Mathf.Clamp(currentIndex ,0 ,EndIndex()); // +1에 대해 생각하는거로
-            Debug.Log("coroutine start");
+            currentIndex = Mathf.Clamp(currentIndex, 0, EndIndex());
+
             if (IsOnPoint(currentIndex))
-                GetNextIndex(currentIndex);
+            {
+                if (isEndPoint(currentIndex)) break;
+                currentIndex = GetNextIndex(currentIndex);
+            }
             else
             {
-                Debug.Log("move start");
+                if (isEndPoint(currentIndex)) // 마지막노드 전에 저장해둔 Lastdir을 저장해준다
+                    pathToFollow.Add(LastDir);
                 MoveTo(currentIndex);
             }
+
             yield return null;
         }
+        Debug.Log("coroutine end");
         yield return null;
-        Debug.Log("coroutine End");
     }
-
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, transform.position +Vector3.down * 0.55f);
+    }
+    bool isGrounded = true;
     private void MoveTo(Vector3 dir)
     {
         var deltaPos = dir - transform.position;
-        Vector3 downForce = new Vector3(0, -1f,0);
+        Vector3 gravity = new Vector3(0, -0.3f, 0);
 
+        if (transform.localPosition.y > 0)
+        {
+            //Debug.Log("isFlying");
+            dir += gravity * Time.deltaTime;
+        }
         transform.up = Vector3.up;
         transform.forward = deltaPos.normalized;
-
+        //print("tra "+transform.localPosition);
+        //print("dir"+dir);
         transform.position = Vector3.MoveTowards(transform.position,dir,speed * Time.deltaTime);
     }
     private void GetNodeToPositionList(Vector3 f)
     //IEnumerator GetnodeToPosition(Vector3 f)
     {
-        //pathToFollow.Add(transform.position);
-        Node fromNode = PathFinder.instance.graphData.GetNode(FindNearNode(transform.position));
+        Node fromNode = PathFinder.instance.graphData.GetNode(FindNearNode(-transform.localPosition));
         Node toNode = PathFinder.instance.graphData.GetNode(FindNearNode(f));
+        print("n1"+fromNode.Pos);
+        print("n2" + toNode.Pos);
+
         if (!fromNode.isOpen)
         {
             foreach (Path path in PathFinder.instance.graphData.paths)
@@ -100,12 +118,11 @@ public class PathFollower : MonoBehaviour
                 int i = fromNode.NumberForNode % 18 == 0 ? fromNode.NumberForNode - 1 : fromNode.NumberForNode + 1;
                 fromNode = PathFinder.instance.graphData.GetNode(i);
             }
-        } // 안되면 다시 생각 해보자. 이 클래스에서 비동기 메서드를 통한 방법 사용 가능
-        
+        } // 안되면 다시 생각 해보자. 이 클래스에서 비동기 메서드를 통한 방법은??
         
         if (toNode == null)
         {
-            Debug.LogError("Tonode is null");
+            Debug.LogError("ToNode is null");
         }
         PathFinder.instance.FindShortPathToPos(fromNode, toNode, 
             (List<Node> point) =>
@@ -124,11 +141,13 @@ public class PathFollower : MonoBehaviour
                 }
                 pathToFollow.Add(node.Pos); 
             }
-        });
-        pathToFollow.Add(f);
+            LastDir = f; // 
+            FollowContinuing();
 
-        Debug.Log(pathToFollow.Count);
-        FollowContinuing();
+            //pathToFollow.Add(f);
+        });
+
+        Debug.Log(f);
         //yield return null;
     }
     private void MoveTo(int i) => MoveTo(pathToFollow[i]);// node.numForNode로 접근할때

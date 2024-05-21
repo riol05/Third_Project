@@ -193,7 +193,7 @@ MonoBehaviour:
   anim: {fileID: 0}
   pathFollow: {fileID: 5427392776019823424}
   curHp: 0
-  moveSpeed: 5
+  moveSpeed: 50
   maxPatrolRadius: 0
   maxChaseRadius: 0
   damage: 0
@@ -202,7 +202,6 @@ MonoBehaviour:
     m_Bits: 256
   typeMONSTER: 0
   stateMon: 0
-  elevatorState: 0
   bulletPrefab: {fileID: 0}
   gunPivot: {fileID: 0}
   ACollider: {fileID: 2173022135458278900}
@@ -218,3 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87f15a8b0c671d545a8c1f9a5ecdfa90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  target: {fileID: 0}

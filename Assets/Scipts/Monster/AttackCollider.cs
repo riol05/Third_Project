@@ -17,17 +17,8 @@ public class AttackCollider : MonoBehaviour
     }
     IEnumerator AttackColliderOn(int i)
     {
-        if (i == 1)
-        {
-            
-        }
-        if( i == 2)
-        {
-
-        }
         yield return null;
         yield return new WaitForSeconds(attackTime);
-
     }
     private void OnCollisionEnter(Collision collision)
     {
